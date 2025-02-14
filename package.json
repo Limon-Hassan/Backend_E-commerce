@@ -1,0 +1,28 @@
+{
+  "name": "mern_-ecommerce-",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Limon-Hassan/mern_-eCommerce-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Limon-Hassan/mern_-eCommerce-/issues"
+  },
+  "homepage": "https://github.com/Limon-Hassan/mern_-eCommerce-#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.13.0",
+    "mongoose": "^8.10.0",
+    "nodemon": "^3.1.9"
+  }
+}
