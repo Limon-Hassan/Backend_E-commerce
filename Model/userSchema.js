@@ -10,11 +10,13 @@ let userModel = new Schema(
     email: {
       type: String,
       required: true,
+      trim: true,
       unique: [true, 'Email already Teken'],
     },
     password: {
       type: String,
       required: true,
+      minlength: [8, 'password would be 8 cherekter'],
     },
     otp: {
       type: Number,
@@ -27,6 +29,11 @@ let userModel = new Schema(
     },
     Image: {
       type: String,
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
     },
   },
   {
