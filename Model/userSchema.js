@@ -30,6 +30,10 @@ let userModel = new Schema(
     Image: {
       type: String,
     },
+    Isverify: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       enum: ['user', 'admin'],

@@ -1,4 +1,5 @@
 const Emailvalidation = require('../Helpers/emailValidation');
+const verify = require('../Helpers/sendEmailverify');
 const userSchema = require('../Model/userSchema');
 const bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
@@ -24,6 +25,20 @@ async function regisationController(req, res) {
             role,
           });
           await user.save();
+          let Otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+          let otpSent = await userSchema.findOneAndUpdate(
+            { email },
+            { $set: { otp: Otp } },
+            { new: true }
+          );
+          setTimeout(async () => {
+            let otpSent = await userSchema.findOneAndUpdate(
+              { email },
+              { $set: { otp: null } },
+              { new: true }
+            );
+          }, 30000);
+          verify(email, Otp);
           res.status(201).send({ msg: 'data gese', user });
         });
       } catch (error) {
@@ -39,18 +54,37 @@ async function loginController(req, res) {
     const isMatch = await bcrypt.compare(password, userWithPassword.password);
     if (!isMatch) {
       return res.status(401).send('Password mismatch!');
-    }
+    } else {
+      if (userWithPassword.role == 'user') {
+        let userWithoutPassword = await userSchema
+          .findOne({ email })
+          .select('-password');
 
-    let userWithoutPassword = await userSchema
-      .findOne({ email })
-      .select('-password');
-    // res.send(userWithoutPassword);
-    let token = jwt.sign({ userWithoutPassword }, process.env.Jwt_secret, {
-      expiresIn: '1d',
-    });
-    res.send({msg:"login succesfull",token});
+        let token = jwt.sign({ userWithoutPassword }, process.env.Jwt_secret, {
+          expiresIn: '1m',
+        });
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: false,
+        });
+        res.send({ msg: 'user login succesfull', token });
+      } else if (userWithPassword.role == 'admin') {
+        let userWithoutPassword = await userSchema
+          .findOne({ email })
+          .select('-password');
+
+        let token = jwt.sign({ userWithoutPassword }, process.env.Jwt_secret, {
+          expiresIn: '1m',
+        });
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: false,
+        });
+        res.send({ msg: 'admin login succesfull', token });
+      }
+    }
   } else {
-    res.status(404).send('User not found!');
+    res.status(404).send({ msg: 'user not found !' });
   }
 }
 
