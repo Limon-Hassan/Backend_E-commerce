@@ -13,7 +13,7 @@ let categorySchema = new Schema(
     review: {
       type: String,
     },
-    image: {
+    Image: {
       type: String,
       require: [true, 'image field require'],
     },
