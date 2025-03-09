@@ -47,6 +47,7 @@ async function regisationController(req, res) {
     }
   }
 }
+
 async function loginController(req, res) {
   let { email, password } = req.body;
   let userWithPassword = await userSchema.findOne({ email });

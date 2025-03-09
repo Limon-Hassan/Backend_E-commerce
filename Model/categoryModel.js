@@ -9,6 +9,7 @@ let categorySchema = new Schema(
     },
     description: {
       type: String,
+      require: true,
     },
     review: {
       type: String,
@@ -20,7 +21,7 @@ let categorySchema = new Schema(
     product: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'product',
+        ref: 'products',
       },
     ],
   },
