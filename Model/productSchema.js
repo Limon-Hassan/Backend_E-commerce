@@ -12,7 +12,7 @@ let productModel = new Schema(
       require: true,
     },
     Photo: {
-      type: String,
+      type: Array,
       require: [true, 'one image should needed'],
     },
     review: [

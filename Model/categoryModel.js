@@ -15,7 +15,7 @@ let categorySchema = new Schema(
       type: String,
     },
     Image: {
-      type: String,
+      type: Array,
       require: [true, 'image field require'],
     },
     product: [

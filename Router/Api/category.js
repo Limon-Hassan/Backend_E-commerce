@@ -1,5 +1,8 @@
 let express = require('express');
-const { categoryControll } = require('../../All_Controller/categoryController');
+const {
+  categoryControll,
+  deleteCategory,
+} = require('../../All_Controller/categoryController');
 let router = express.Router();
 const multer = require('multer');
 const errorCheck = require('../../Helpers/imageError');
@@ -27,5 +30,7 @@ router.post(
   errorCheck,
   categoryControll
 );
+
+router.delete('/deletecategory/:id', deleteCategory);
 
 module.exports = router;
