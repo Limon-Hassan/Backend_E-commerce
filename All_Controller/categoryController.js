@@ -1,4 +1,6 @@
 const categoryModel = require('../Model/categoryModel');
+let fs = require('fs');
+let path = require('path');
 
 async function categoryControll(req, res) {
   try {
@@ -30,17 +32,32 @@ async function deleteCategory(req, res) {
     let { id } = req.params;
 
     let deleteCategorys = await categoryModel.findOne({ _id: id });
-
     if (!deleteCategorys) {
       return res.status(404).send({ msg: 'Category not found' });
     }
-
-    deleteCategorys.Image.map(imagePath => {
-      const oldimage = imagePath.split('/');
-      return res.send(oldimage[oldimage.length - 1]);
+    let imageFileNames = deleteCategorys.Image.map(imagePath => {
+      const imagPath = imagePath.split('/');
+      let oldimage = imagPath[imagPath.length - 1];
+      return oldimage;
     });
 
-    return res.send({ msg: 'Category found', imageFileNames });
+    const deletePromises = imageFileNames.map(image => {
+      return new Promise((resolve, reject) => {
+        fs.unlink(`${path.join(__dirname, '../uploads')}/${image}`, err => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    });
+
+    // Wait for all file deletions to complete
+    await Promise.all(deletePromises);
+    deleteCategorys.Image = []; // Remove the image references
+    await deleteCategorys.save();
+    res.status(200).send({ msg: 'Images deleted successfully' });
   } catch (error) {
     return res
       .status(500)

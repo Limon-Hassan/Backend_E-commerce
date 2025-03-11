@@ -9,10 +9,9 @@ const storage = multer.diskStorage({
     cb(null, './productImage');
   },
   filename: function (req, file, cb) {
-    let fileSize = req.headers['content-length'];
-    // const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const extension = path.extname(file.originalname);
-    cb(null, file.fieldname + fileSize + extension);
+    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    let extencion = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueName + extencion);
   },
 });
 
@@ -23,7 +22,7 @@ const upload = multer({
 
 router.post(
   '/addProducts',
-  upload.array('image', 12),
+  upload.array('photo', 12),
   errorCheck,
   productControll
 );

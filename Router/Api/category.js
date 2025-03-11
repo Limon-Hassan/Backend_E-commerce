@@ -13,10 +13,9 @@ const storage = multer.diskStorage({
     cb(null, './uploads');
   },
   filename: function (req, file, cb) {
-    let fileSize = req.headers['content-length'];
-    // const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const extension = path.extname(file.originalname);
-    cb(null, file.fieldname + fileSize + extension);
+    cb(null, file.fieldname + uniqueName + extension);
   },
 });
 
@@ -26,7 +25,7 @@ const upload = multer({
 });
 router.post(
   '/createcategory',
-  upload.array('Photo', 12),
+  upload.array('image', 12),
   errorCheck,
   categoryControll
 );
