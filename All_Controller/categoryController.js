@@ -29,39 +29,106 @@ async function categoryControll(req, res) {
 }
 async function deleteCategory(req, res) {
   try {
-    let { id } = req.params;
+    const { id } = req.params;
+    const { action } = req.query;
 
-    let deleteCategorys = await categoryModel.findOne({ _id: id });
-    if (!deleteCategorys) {
+    let category = await categoryModel.findById(id);
+    if (!category) {
       return res.status(404).send({ msg: 'Category not found' });
     }
-    let imageFileNames = deleteCategorys.Image.map(imagePath => {
-      const imagPath = imagePath.split('/');
-      let oldimage = imagPath[imagPath.length - 1];
-      return oldimage;
-    });
+    if (action === 'deleteImage') {
+      if (category.Image && category.Image.length > 0) {
+        const deletePromises = category.Image.map(imagePath => {
+          return new Promise((resolve, reject) => {
+            const imagePathOnServer = path.join(
+              __dirname,
+              '../uploads',
+              imagePath.split('/').pop()
+            ); 
 
-    const deletePromises = imageFileNames.map(image => {
-      return new Promise((resolve, reject) => {
-        fs.unlink(`${path.join(__dirname, '../uploads')}/${image}`, err => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
+            fs.unlink(imagePathOnServer, err => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          });
         });
-      });
-    });
+        await Promise.all(deletePromises);
 
-    // Wait for all file deletions to complete
-    await Promise.all(deletePromises);
-    deleteCategorys.Image = []; // Remove the image references
-    await deleteCategorys.save();
-    res.status(200).send({ msg: 'Images deleted successfully' });
-  } catch (error) {
+        category.Image = [];
+        await category.save();
+
+        return res.status(200).send({ msg: 'Images deleted successfully' });
+      } else {
+        return res.status(400).send({ msg: 'No images found to delete' });
+      }
+    }
+
+    if (action === 'deleteDocument') {
+      await category.remove();//problem thinking there
+      return res
+        .status(200)
+        .send({
+          msg: 'Category document deleted successfully, images are preserved.',
+        });
+    }
+
+    // If no valid action is provided, send an error
     return res
+      .status(400)
+      .send({ msg: 'Invalid action. Use "deleteImage" or "deleteDocument".' });
+  } catch (error) {
+    // Catch any errors and return a 500 response with the error message
+    res
       .status(500)
-      .send({ msg: 'Error in deleting category', error: error.message });
+      .send({ msg: 'Error processing the request', error: error.message });
   }
 }
-module.exports = { categoryControll, deleteCategory };
+// async function deleteCategori(req, res) {
+//   let { id } = req.params;
+//   let deleteCaty = await categoryModel.findOneAndDelete({ _id: id });
+//   res.send({ msg: 'delete Hoise category', data: deleteCaty });
+// }
+async function getAllCategories(req, res) {
+  try {
+    let getAll = await categoryModel.find({});
+    res.send({ msg: 'asche', data: getAll });
+  } catch (error) {
+    res.status(400).send({ msg: 'error hoise', error: error.message });
+  }
+}
+async function updateCategory(req, res) {
+  try {
+    let { id } = req.params;
+    let fileName = req.files;
+    let fileNames = [];
+   if (Array.isArray(fileName)) {
+     fileName.forEach(element => {
+       fileNames.push(process.env.local_host + element.filename);
+     });
+   } else {
+     fileNames.push(process.env.local_host + fileName.filename);
+   }
+    let { changeName, ChangeDescription } = req.body;
+    let updateCat = await categoryModel.findOneAndUpdate(
+      { _id: id },
+      { name: changeName, description: ChangeDescription, Image: fileNames },
+      { new: true }
+    );
+    if (!updateCat) {
+      return res.status(404).send({ msg: 'Category not found' });
+    }
+    await updateCat.save();
+    res.send({ msg: 'update hoise', data: updateCat });
+  } catch (error) {
+    res.status(400).send({ msg: 'error hoise', error: error.message });
+  }
+}
+module.exports = {
+  categoryControll,
+  deleteCategory,
+  getAllCategories,
+  updateCategory,
+};
