@@ -30,67 +30,74 @@ async function categoryControll(req, res) {
 async function deleteCategory(req, res) {
   try {
     const { id } = req.params;
-    const { action } = req.query;
-
     let category = await categoryModel.findById(id);
     if (!category) {
       return res.status(404).send({ msg: 'Category not found' });
+    } else {
+      let deleteCat = await categoryModel.findOneAndDelete({ _id: id });
+      res.send({
+        msg: 'delete successfull',
+        data: deleteCat,
+      });
     }
-    if (action === 'deleteImage') {
-      if (category.Image && category.Image.length > 0) {
-        const deletePromises = category.Image.map(imagePath => {
-          return new Promise((resolve, reject) => {
-            const imagePathOnServer = path.join(
-              __dirname,
-              '../uploads',
-              imagePath.split('/').pop()
-            ); 
+    // if (action === 'deleteImage') {
+    //   if (category.Image && category.Image.length > 0) {
+    //     const deletePromises = category.Image.map(imagePath => {
+    //       return new Promise((resolve, reject) => {
+    //         const imagePathOnServer = path.join(
+    //           __dirname,
+    //           '../uploads',
+    //           imagePath.split('/').pop()
+    //         );
 
-            fs.unlink(imagePathOnServer, err => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
-        });
-        await Promise.all(deletePromises);
+    //         fs.unlink(imagePathOnServer, err => {
+    //           if (err) {
+    //             reject(err);
+    //           } else {
+    //             resolve();
+    //           }
+    //         });
+    //       });
+    //     });
+    //     await Promise.all(deletePromises);
+    //     category.Image = [];
+    //     await category.save();
 
-        category.Image = [];
-        await category.save();
+    //     return res.status(200).send({ msg: 'Images deleted successfully' });
+    //   } else {
+    //     return res.status(400).send({ msg: 'No images found to delete' });
+    //   }
+    // }
 
-        return res.status(200).send({ msg: 'Images deleted successfully' });
-      } else {
-        return res.status(400).send({ msg: 'No images found to delete' });
-      }
-    }
+    // if (action === 'deleteDocument') {
+    //   if (category.Image && category.Image.length > 0) {
+    //     category.Image.forEach(imagePath => {
+    //       const imagePathOnServer = path.join(
+    //         __dirname,
+    //         '../uploads',
+    //         imagePath.split('/').pop()
+    //       );
 
-    if (action === 'deleteDocument') {
-      await category.remove();//problem thinking there
-      return res
-        .status(200)
-        .send({
-          msg: 'Category document deleted successfully, images are preserved.',
-        });
-    }
+    //       fs.unlink(imagePathOnServer, err => {
+    //         if (err) {
+    //           console.log(`Error deleting image: ${imagePathOnServer}`, err);
+    //         }
+    //       });
+    //     });
+    //   }
+    //   await categoryModel.findByIdAndDelete(id);
 
-    // If no valid action is provided, send an error
-    return res
-      .status(400)
-      .send({ msg: 'Invalid action. Use "deleteImage" or "deleteDocument".' });
+    //   return res.status(200).send({
+    //     msg: 'Category document deleted successfully, images are also removed.',
+    //   });
+    // }
   } catch (error) {
-    // Catch any errors and return a 500 response with the error message
-    res
-      .status(500)
-      .send({ msg: 'Error processing the request', error: error.message });
+    res.status(500).send({
+      msg: 'Error processing the request',
+      error: error.message,
+    });
   }
 }
-// async function deleteCategori(req, res) {
-//   let { id } = req.params;
-//   let deleteCaty = await categoryModel.findOneAndDelete({ _id: id });
-//   res.send({ msg: 'delete Hoise category', data: deleteCaty });
-// }
 async function getAllCategories(req, res) {
   try {
     let getAll = await categoryModel.find({});
@@ -104,13 +111,13 @@ async function updateCategory(req, res) {
     let { id } = req.params;
     let fileName = req.files;
     let fileNames = [];
-   if (Array.isArray(fileName)) {
-     fileName.forEach(element => {
-       fileNames.push(process.env.local_host + element.filename);
-     });
-   } else {
-     fileNames.push(process.env.local_host + fileName.filename);
-   }
+    if (Array.isArray(fileName)) {
+      fileName.forEach(element => {
+        fileNames.push(process.env.local_host + element.filename);
+      });
+    } else {
+      fileNames.push(process.env.local_host + fileName.filename);
+    }
     let { changeName, ChangeDescription } = req.body;
     let updateCat = await categoryModel.findOneAndUpdate(
       { _id: id },

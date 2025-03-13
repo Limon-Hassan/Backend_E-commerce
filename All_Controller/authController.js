@@ -83,7 +83,7 @@ async function loginController(req, res) {
             { userWithoutPassword },
             process.env.Jwt_secret,
             {
-              expiresIn: '1m',
+              expiresIn: '5m',
             }
           );
           res.cookie('token', token, {
