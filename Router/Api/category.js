@@ -9,7 +9,7 @@ let router = express.Router();
 const multer = require('multer');
 const errorCheck = require('../../Helpers/imageError');
 const path = require('path');
-const { authUser } = require('../../Midlewere/authMidlewere');
+const { authAdmin } = require('../../Midlewere/authMidlewere');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -28,17 +28,17 @@ const upload = multer({
 });
 router.post(
   '/createcategory',
-  authUser,
+  authAdmin,
   upload.array('image', 12),
   errorCheck,
   categoryControll
 );
 
-router.delete('/deletecategory/:id', authUser, deleteCategory);
+router.delete('/deletecategory/:id', authAdmin, deleteCategory);
 router.get('/getAllCategories', getAllCategories);
 router.patch(
   '/updateCategory/:id',
-  authUser,
+  authAdmin,
   upload.array('image', 12),
   updateCategory
 );

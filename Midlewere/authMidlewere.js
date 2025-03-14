@@ -1,5 +1,5 @@
 let jwt = require('jsonwebtoken');
-function authUser(req, res, next) {
+function authAdmin(req, res, next) {
   let { token } = req.cookies;
   if (token) {
     jwt.verify(token, process.env.Jwt_secret, function (err, decoded) {
@@ -20,4 +20,4 @@ function authUser(req, res, next) {
  
 }
 
-module.exports = { authUser };
+module.exports = { authAdmin };

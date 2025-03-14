@@ -1,9 +1,15 @@
 let express = require('express');
-const productControll = require('../../All_Controller/productController');
+const {
+  productControll,
+  deleteProducts,
+  getAllProducts,
+  updateProducts,
+} = require('../../All_Controller/productController');
 let router = express.Router();
 const multer = require('multer');
 const errorCheck = require('../../Helpers/imageError');
 const path = require('path');
+const { authAdmin } = require('../../Midlewere/authMidlewere');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './productImage');
@@ -22,9 +28,17 @@ const upload = multer({
 
 router.post(
   '/addProducts',
+  authAdmin,
   upload.array('photo', 12),
   errorCheck,
   productControll
 );
-
+router.delete('/deleteproducts/:id', authAdmin, deleteProducts);
+router.get('/getProducts', getAllProducts);
+router.patch(
+  '/updateProducts/:id',
+  authAdmin,
+  upload.array('photo', 12),
+  updateProducts
+);
 module.exports = router;

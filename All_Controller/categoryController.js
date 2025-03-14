@@ -35,62 +35,34 @@ async function deleteCategory(req, res) {
       return res.status(404).send({ msg: 'Category not found' });
     } else {
       let deleteCat = await categoryModel.findOneAndDelete({ _id: id });
+      if (!deleteCat) {
+         return res
+           .status(404)
+           .send({ msg: 'Failed to delete category from database' });
+      }
+      const deletePromises = category.Image.map(imagePath => {
+        return new Promise((resolve, reject) => {
+          const imagePathOnServer = path.join(
+            __dirname,
+            '../uploads',
+            imagePath.split('/').pop()
+          );
+
+          fs.unlink(imagePathOnServer, err => {
+            if (err) {
+              return reject('Failed to delete image'); 
+            } else {
+              resolve();
+            }
+          });
+        });
+      });
+      await Promise.all(deletePromises);
       res.send({
         msg: 'delete successfull',
         data: deleteCat,
       });
     }
-    // if (action === 'deleteImage') {
-    //   if (category.Image && category.Image.length > 0) {
-    //     const deletePromises = category.Image.map(imagePath => {
-    //       return new Promise((resolve, reject) => {
-    //         const imagePathOnServer = path.join(
-    //           __dirname,
-    //           '../uploads',
-    //           imagePath.split('/').pop()
-    //         );
-
-    //         fs.unlink(imagePathOnServer, err => {
-    //           if (err) {
-    //             reject(err);
-    //           } else {
-    //             resolve();
-    //           }
-    //         });
-    //       });
-    //     });
-    //     await Promise.all(deletePromises);
-    //     category.Image = [];
-    //     await category.save();
-
-    //     return res.status(200).send({ msg: 'Images deleted successfully' });
-    //   } else {
-    //     return res.status(400).send({ msg: 'No images found to delete' });
-    //   }
-    // }
-
-    // if (action === 'deleteDocument') {
-    //   if (category.Image && category.Image.length > 0) {
-    //     category.Image.forEach(imagePath => {
-    //       const imagePathOnServer = path.join(
-    //         __dirname,
-    //         '../uploads',
-    //         imagePath.split('/').pop()
-    //       );
-
-    //       fs.unlink(imagePathOnServer, err => {
-    //         if (err) {
-    //           console.log(`Error deleting image: ${imagePathOnServer}`, err);
-    //         }
-    //       });
-    //     });
-    //   }
-    //   await categoryModel.findByIdAndDelete(id);
-
-    //   return res.status(200).send({
-    //     msg: 'Category document deleted successfully, images are also removed.',
-    //   });
-    // }
   } catch (error) {
     res.status(500).send({
       msg: 'Error processing the request',
