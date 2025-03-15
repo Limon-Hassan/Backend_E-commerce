@@ -3,34 +3,39 @@ const productSchema = require('../Model/productSchema');
 let path = require('path');
 let fs = require('fs');
 
-
 async function productControll(req, res) {
   try {
-    let { name, description, price, category } = req.body;
-    let fileName = req.files;
-    let fileNames = [];
-    fileName.forEach(element => {
-      fileNames.push(process.env.local_host + element.filename);
-    });
-    let product = new productSchema({
+    const { name, description, price, category } = req.body;
+
+    const fileName = req.files;
+    const fileNames = fileName.map(
+      element => `${process.env.local_host}${element.filename}`
+    );
+
+    const product = new productSchema({
       name,
       description,
       price,
       category,
       Photo: fileNames,
     });
-    await product.save();
-    let incategory = await categoryModel.findOneAndUpdate(
+
+    const updatedCategory = await categoryModel.findOneAndUpdate(
       { _id: category },
       { $push: { product: product._id } },
-      {
-        new: true,
-      }
+      { new: true }
     );
-    await incategory.save();
-    res.status(201).send({ msg: 'products created', product });
+
+    await product.save();
+
+    return res
+      .status(201)
+      .send({ msg: 'Product created successfully', product });
   } catch (error) {
-    res.status(400).send({ msg: 'error', error: error.message });
+    console.error(error);
+    return res
+      .status(400)
+      .send({ msg: 'Error creating product', error: error.message });
   }
 }
 
@@ -62,7 +67,7 @@ async function deleteProducts(req, res) {
 
         fs.unlink(PhotoPathOnServer, err => {
           if (err) {
-            return reject('Failed to delete image'); 
+            return reject('Failed to delete image');
           }
           resolve();
         });
