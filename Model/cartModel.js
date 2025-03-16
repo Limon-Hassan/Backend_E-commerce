@@ -12,7 +12,6 @@ let cartSchema = new Schema(
     },
     quantity: {
       type: Number,
-      require: true,
       default: 1,
     },
     price: {
