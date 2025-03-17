@@ -5,7 +5,7 @@ let fs = require('fs');
 
 async function productControll(req, res) {
   try {
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, stock } = req.body;
 
     const fileName = req.files;
     const fileNames = fileName.map(
@@ -17,6 +17,7 @@ async function productControll(req, res) {
       description,
       price,
       category,
+      stock: stock,
       Photo: fileNames,
     });
 

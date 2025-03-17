@@ -43,16 +43,36 @@ async function DeleteCart(req, res) {
     res.status(400).send({ msg: 'error found' });
   }
 }
+
 async function IncrementCart(req, res) {
   try {
     let { id } = req.params;
-    let Increament = await cartModel.findOne({ _id: id });
-    let total = Increament.quantity++;
-    console.log(total);
-    res.send(Increament);
+    let { action } = req.query;
+
+    let cartItem = await cartModel.findOne({ _id: id }).populate('product');
+
+    if (action === 'increment') {
+      if (cartItem.quantity >= 10) {
+        return res.status(400).send({ msg: 'Max quantity of 10 reached' });
+      }
+      if (cartItem.quantity >= cartItem.product.stock) {
+        return res.status(400).send({ msg: 'Not enough stock available' });
+      } else {
+        cartItem.quantity++;
+      }
+    } else if (action === 'decrement' && cartItem.quantity > 1) {
+      cartItem.quantity--;
+    } else {
+      return res
+        .status(400)
+        .send({ msg: 'Invalid action or quantity cannot go below 1' });
+    }
+
+    await cartItem.save();
+    res.send(cartItem);
   } catch (error) {
     console.log(error);
-    res.status(400).send({ msg: 'error found' });
+    res.status(500).send({ msg: 'An error occurred while updating the cart' });
   }
 }
 
