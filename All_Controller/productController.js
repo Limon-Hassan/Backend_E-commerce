@@ -5,7 +5,7 @@ let fs = require('fs');
 
 async function productControll(req, res) {
   try {
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, category, stock, brand } = req.body;
 
     const fileName = req.files;
     const fileNames = fileName.map(
@@ -17,10 +17,10 @@ async function productControll(req, res) {
       description,
       price,
       category,
-      stock: stock,
+      brand,
+      stock,
       Photo: fileNames,
     });
-
     const updatedCategory = await categoryModel.findOneAndUpdate(
       { _id: category },
       { $push: { product: product._id } },
@@ -29,14 +29,16 @@ async function productControll(req, res) {
 
     await product.save();
 
-    return res
-      .status(201)
-      .send({ msg: 'Product created successfully', product });
+    return res.status(201).send({
+      msg: 'Product created successfully',
+      product,
+    });
   } catch (error) {
     console.error(error);
-    return res
-      .status(400)
-      .send({ msg: 'Error creating product', error: error.message });
+    return res.status(400).send({
+      msg: 'Error creating product',
+      error: error.message,
+    });
   }
 }
 

@@ -1,11 +1,14 @@
-let { mongoose, Schema } = require('mongoose');
+let mongoose = require('mongoose');
 
-let productModel = new Schema(
+let productModel = new mongoose.Schema(
   {
     name: {
       type: String,
       required: [true, 'name is required'],
       trim: true,
+    },
+    brand: {
+      type: String,
     },
     description: {
       type: String,
@@ -24,6 +27,7 @@ let productModel = new Schema(
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
+      required: true,
     },
     stock: {
       type: String,
