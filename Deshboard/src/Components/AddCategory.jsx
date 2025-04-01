@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Input,
@@ -6,19 +6,58 @@ import {
   Typography,
   Textarea,
 } from "@material-tailwind/react";
+import axios from "axios";
 const AddCategory = () => {
   const [CategoryName, setCategoryName] = useState("");
+  // const [GetallCategory, setGetallCategory] = useState([]);
   const [description, setDescription] = useState("");
-  // const [Image, setImageupload] = useState("");
+  const [Image, setImageupload] = useState("");
 
-  const handleAddCategory = (e) => {
+  // useEffect(() => {
+  //   axios
+  //     .get("http://localhost:5990/api/v1/category/getAllCategories")
+  //     .then((respone) => {
+  //       console.log(respone.data.data);
+  //       setGetallCategory(respone.data.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, []);
+
+  const handleAddCategory = async (e) => {
     e.preventDefault();
 
     const form = e.target.form;
     if (!form.checkValidity()) {
       form.reportValidity();
     } else {
-      console.log("Product added!");
+      let fromdata = new FormData();
+      fromdata.append("name", CategoryName);
+      fromdata.append("description", description);
+      if (Image) {
+        fromdata.append("image", Image);
+      }
+      for (let [key, value] of fromdata.entries()) {
+        console.log(key + " : " + value);
+      }
+      await axios
+        .post(
+          "http://localhost:5990/api/v1/category/createcategory",
+          fromdata,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+          },
+        )
+        .then((respone) => {
+          console.log(respone.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
   return (
@@ -79,7 +118,12 @@ const AddCategory = () => {
                     SVG, PNG, JPG or GIF (MAX. 800x400px)
                   </p>
                 </div>
-                <input id="dropzone-file" type="file" class="hidden" />
+                <input
+                  id="dropzone-file"
+                  onChange={(e) => setImageupload(e.target.files[0])}
+                  type="file"
+                  class="hidden"
+                />
               </label>
             </div>
           </div>

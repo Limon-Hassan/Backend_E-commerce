@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Input,
@@ -10,65 +10,57 @@ import {
 } from "@material-tailwind/react";
 import axios from "axios";
 
-const Addproduct = () => {
+const AddProduct = () => {
   const [productName, setProductName] = useState("");
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]); // Store categories from backend
   const [brand, setBrand] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
+  // Fetch categories from backend
+  useEffect(() => {
+    axios
+      .get("http://localhost:5990/api/v1/category/getAllCategories")
+      .then((response) => {
+        // console.log("Fetched Categories:", response.data.data); // Debugging
+        setCategories(response.data.data); // Make sure you're accessing `data`
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      });
+  }, []);
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
 
-    const form = e.target.form;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-    } else {
-      const formData = new FormData();
-      formData.append("name", productName);
-      formData.append("category", category);
-      formData.append("brand", brand);
-      formData.append("description", description);
-      formData.append("price", price);
+    const formData = new FormData();
+    formData.append("name", productName);
+    formData.append("category", category);
+    formData.append("brand", brand);
+    formData.append("description", description);
+    formData.append("price", price);
 
-      if (image) {
-        formData.append("photo", image);
-      }
-
-      // Loop through formData entries and log the data
-      for (let [key, value] of formData.entries()) {
-        console.log(key + ": " + value);
-      }
-
-      // Send the formData to the backend
-      await axios
-        .post("http://localhost:5990/api/v1/products/addProducts", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          console.log("Product Added:", response.data);
-          alert("Product added successfully!");
-        })
-        .catch((error) => {
-          console.error("There was an error adding the product:", error);
-          alert("Error adding product!");
-        });
+    if (image) {
+      formData.append("photo", image);
     }
+    for (let [key, value] of formData.entries()) {
+      console.log(key + " : " + value);
+    }
+    await axios
+      .post("http://localhost:5990/api/v1/products/addProducts", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log("Product Added:", response.data);
+        alert("Product added successfully!");
+      })
+      .catch((error) => {
+        console.error("There was an error adding the product:", error);
+        alert("Error adding product!");
+      });
   };
-  // const handleAddProduct = (e) => {
-  //   e.preventDefault();
-
-  //   console.log("Product Data:");
-  //   console.log("Product Name:", productName);
-  //   console.log("Category:", category);
-  //   console.log("Brand:", brand);
-  //   console.log("Description:", description);
-  //   console.log("Price:", price);
-  //   console.log("Image:", image ? image.name : "No image selected");
-  // };
 
   return (
     <Card className="mx-auto w-full max-w-5xl p-6 shadow-lg">
@@ -98,12 +90,21 @@ const Addproduct = () => {
             </Typography>
             <Select
               value={category}
-              onChange={(value) => setCategory(value)}
+              onChange={(value) => {
+                console.log("Selected Category:", value); 
+                setCategory(value);
+              }}
               required
             >
-              <Option value="Computer">Computer</Option>
-              <Option value="Mobile">Mobile</Option>
-              <Option value="Tablet">Tablet</Option>
+              {categories.length > 0 ? (
+                categories.map((cat) => (
+                  <Option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </Option>
+                ))
+              ) : (
+                <Option disabled>No Categories Found</Option>
+              )}
             </Select>
           </div>
 
@@ -198,4 +199,4 @@ const Addproduct = () => {
   );
 };
 
-export default Addproduct;
+export default AddProduct;

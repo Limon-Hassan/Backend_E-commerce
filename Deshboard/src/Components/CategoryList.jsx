@@ -1,7 +1,27 @@
 import { Input } from "@material-tailwind/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Axios from "axios";
 
 const CategoryList = () => {
+  let [GetallCategories, setGetallCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await Axios.get(
+          "http://localhost:5990/api/v1/category/getAllCategories",
+        );
+        console.log(response.data.data);
+        setGetallCategories(response.data.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    fetchCategories();
+    // console.log(GetallCategories);
+  }, []);
+
   return (
     <>
       <section>
@@ -32,28 +52,43 @@ const CategoryList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b">
-                    <td className="flex items-center gap-2 px-4 py-3">
-                      <img
-                        src="/mans.png"
-                        alt="Product"
-                        className="h-10 w-10 rounded-lg"
-                      />
-                      Soft Fluffy Cats
-                    </td>
-                    <td className="px-4 py-3">#327</td>
-                    <td className="px-4 py-3">1,500</td>
-                    <td className="px-4 py-3">28</td>
-                    <td className="px-4 py-3">
-                      <i class="fa-light fa-pen-line mr-[20px] cursor-pointer text-[24px] text-green-500"></i>
-                      <i class="fa-light fa-trash cursor-pointer text-[24px] text-red-400"></i>
-                    </td>
-                  </tr>
+                  {GetallCategories.length > 0 ? (
+                    GetallCategories.map((category) => (
+                      <tr key={category._id} className="border-b">
+                        <td className="flex items-center gap-[20px] px-4 py-3">
+                          <img
+                            src={category.Image || "/mans.png"} // Replace with real image URL
+                            alt={category.name}
+                            className="h-10 w-10 rounded-lg"
+                          />
+                          {category.name}
+                        </td>
+                        <td className="px-4 py-3">{category._id}</td>
+                        <td className="px-4 py-3">
+                          {category.quantity || "N/A"}
+                        </td>
+                        <td className="px-4 py-3">{category.sale || "0"}</td>
+                        <td className="px-4 py-3">
+                          <i className="fa-light fa-pen-line mr-[20px] cursor-pointer text-[24px] text-green-500"></i>
+                          <i className="fa-light fa-trash cursor-pointer text-[24px] text-red-400"></i>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="6"
+                        className="py-4 text-center text-gray-500"
+                      >
+                        No products found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
             <div className="mb-5 mt-8 flex items-center justify-between text-sm text-gray-600">
-              <p>Showing 5 entries</p>
+              <p>Showing {GetallCategories.length} entries</p>
               <div className="flex items-center gap-2">
                 <button className="rounded bg-gray-200 px-3 py-1">◀</button>
                 <button className="rounded bg-gray-200 px-3 py-1">1</button>

@@ -11,6 +11,7 @@ import ProductList from "./Components/ProductList";
 import AddCategory from "./Components/AddCategory";
 import CategoryList from "./Components/CategoryList";
 import Account from "./Components/Account";
+import Orderlist from "./Components/Orderlist";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/productlist" element={<ProductList />} />
           <Route path="/CategoryList" element={<CategoryList />} />
           <Route path="/Account" element={<Account />} />
+          <Route path="/orderlist" element={<Orderlist />} />
         </Route>
 
         {/* Auth Pages (outside main layout) */}
