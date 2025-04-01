@@ -1,27 +1,38 @@
 const cartModel = require('../Model/cartModel');
+const productSchema = require('../Model/productSchema');
 
 async function cartadd(req, res) {
-  let { price, quantity, product, user } = req.body;
+  const { quantity, product, user } = req.body;
+
   try {
-    let carts = new cartModel({
-      price,
+    const productExists = await productSchema.findById({ _id: product });
+    if (!productExists) {
+      return res.status(404).json({ msg: 'Product not found' });
+    }
+    const totalPrice = productExists.price * quantity;
+
+    let newCart = new cartModel({
+      totalPrice: totalPrice, 
       quantity,
       product,
       user,
     });
-    await carts.save();
-    res.send({ msg: 'success', data: carts });
+
+    await newCart.save();
+    res.json({ msg: 'Cart item added successfully', data: newCart });
   } catch (error) {
-    console.log(error);
-    res.status(400).send({ msg: 'error found' });
+    console.error(error);
+    res
+      .status(500)
+      .json({ msg: 'Error adding item to cart', error: error.message });
   }
 }
 
 async function getCart(req, res) {
   try {
     let { id } = req.params;
-    let seecart = await cartModel.find({ user: id });
-
+    let seecart = await cartModel.find({ user: id }).populate('product');
+    console.log(seecart);
     if (seecart && seecart.length > 0) {
       res.send(seecart);
     } else {

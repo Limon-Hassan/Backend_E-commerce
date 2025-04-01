@@ -3,7 +3,7 @@ require('dotenv').config();
 let cookieParser = require('cookie-parser');
 let app = express();
 const cors = require('cors');
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.static('uploads'));
 app.use(express.static('productImage'));
 app.use(express.urlencoded({ extended: true }));

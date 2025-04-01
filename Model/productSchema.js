@@ -24,11 +24,12 @@ let productModel = new mongoose.Schema(
         ref: 'review',
       },
     ],
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
-      required: true,
-    },
+    category: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+      },
+    ],
     stock: {
       type: String,
     },

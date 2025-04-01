@@ -6,8 +6,8 @@ let fs = require('fs');
 async function productControll(req, res) {
   try {
     const { name, description, price, category, stock, brand } = req.body;
-
     const fileName = req.files;
+
     const fileNames = fileName.map(
       element => `${process.env.local_host}${element.filename}`
     );
@@ -21,11 +21,6 @@ async function productControll(req, res) {
       stock,
       Photo: fileNames,
     });
-    const updatedCategory = await categoryModel.findOneAndUpdate(
-      { _id: category },
-      { $push: { product: product._id } },
-      { new: true }
-    );
 
     await product.save();
 
@@ -91,10 +86,18 @@ async function deleteProducts(req, res) {
 
 async function getAllProducts(req, res) {
   try {
-    let getProduct = await productSchema.find({});
-    res.send({ msg: 'asche', data: getProduct });
+    let getProduct = await productSchema.find().populate('category');
+    getProduct.forEach(product => {
+      console.log(`Product: ${product.name}`);
+      product.category.forEach(cat => {
+        console.log(`Category: ${cat.name}`);
+      });
+    });
+    res.send({ msg: 'Products fetched successfully', data: getProduct });
   } catch (error) {
-    res.status(400).send({ msg: 'error hoise', error: error.message });
+    res
+      .status(400)
+      .send({ msg: 'Error fetching products', error: error.message });
   }
 }
 

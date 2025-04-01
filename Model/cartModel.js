@@ -6,23 +6,20 @@ let cartSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'products',
+    totalPrice: {
+      type: Number,
+      require: true,
     },
+    product: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'products',
+      },
+    ],
     quantity: {
       type: Number,
       default: 1,
     },
-    price: {
-      type: Number,
-    },
-    // product: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'products',
-    //   },
-    // ],
   },
   {
     timestamps: true,

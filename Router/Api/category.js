@@ -28,9 +28,9 @@ const upload = multer({
 });
 router.post(
   '/createcategory',
-  authAdmin,
+  // authAdmin,
   upload.array('image', 12),
-  errorCheck,
+  // errorCheck,
   categoryControll
 );
 

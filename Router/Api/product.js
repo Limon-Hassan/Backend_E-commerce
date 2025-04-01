@@ -28,11 +28,12 @@ const upload = multer({
 
 router.post(
   '/addProducts',
-  authAdmin,
+  // authAdmin,
   upload.array('photo', 12),
-  errorCheck,
+  // errorCheck,
   productControll
 );
+
 router.delete('/deleteproducts/:id', authAdmin, deleteProducts);
 router.get('/getProducts', getAllProducts);
 router.patch(
