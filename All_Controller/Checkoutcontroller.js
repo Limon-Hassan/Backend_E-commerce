@@ -1,11 +1,11 @@
 const cartModel = require('../Model/cartModel');
 const checkoutModel = require('../Model/checkoutModel');
+const userSchema = require('../Model/userSchema');
 
 async function checkoutCart(req, res) {
   try {
-    const { user, address, city, phone, email } = req.body;
+    const { user, address, city, phone, email, paymentMethod } = req.body;
 
-    // Fetch user's cart items
     const cartItems = await cartModel.find({ user }).populate('product');
 
     if (cartItems.length === 0) {
@@ -14,10 +14,7 @@ async function checkoutCart(req, res) {
 
     let totalQuantity = 0;
     let totalPrice = 0;
-    // cartItems.forEach(item => {
-    //   console.log('Product Price:', item.product[0].price);
-    // });
-    // return;
+
     const items = cartItems.map(item => {
       if (!item.product || item.product.length === 0) {
         throw new Error('Product is missing in cart');
@@ -62,6 +59,7 @@ async function checkoutCart(req, res) {
       city,
       phone,
       email,
+      paymentMethod,
       paymentStatus: 'pending',
       delivery: 'pending',
     });
@@ -78,5 +76,52 @@ async function checkoutCart(req, res) {
       .json({ msg: 'Error processing checkout', error: error.message });
   }
 }
+async function updateOrderStatus(req, res) {
+  try {
+    const { orderId } = req.params;
+    const { action } = req.body;
 
-module.exports = { checkoutCart };
+    // Find the order and populate user details
+    let order = await checkoutModel.findOne(orderId).populate('user');
+    if (!order) {
+      return res.status(404).json({ msg: 'Order not found' });
+    }
+
+    // Extract user role from populated user data
+    const userRole = order.user.role; // Now we get the role
+
+    // If the logged-in user is requesting cancellation
+    if (userRole === 'user' && action === 'request') {
+      order.delivery = 'cancellation_requested';
+    }
+
+    // If an admin is approving or rejecting the request
+    if (userRole === 'admin') {
+      if (action === 'approve') {
+        order.delivery = 'cancelled';
+      } else if (action === 'reject') {
+        order.delivery = 'pending'; // Revert back if rejected
+      } else {
+        return res.status(400).json({ msg: 'Invalid admin action' });
+      }
+    }
+
+    await order.save();
+    res.json({ msg: 'Order status updated', order });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error updating order', error: error.message });
+  }
+}
+
+async function Getcheckout(req, res) {
+
+  
+}
+async function Deletecheckout(req, res) {}
+
+module.exports = {
+  checkoutCart,
+  updateOrderStatus,
+  Getcheckout,
+  Deletecheckout,
+};

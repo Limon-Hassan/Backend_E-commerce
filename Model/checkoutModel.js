@@ -33,6 +33,11 @@ let checkoutModel = new Schema(
       type: Number,
       required: true,
     },
+    paymentMethod: {
+      type: String,
+      enum: ['cash on delivery', 'debit card', 'bkash', 'nogod'],
+      required: true,
+    },
     paymentStatus: {
       type: String,
       enum: ['paid', 'unpaid', 'pending', 'failed', 'cancelled'],
@@ -56,7 +61,13 @@ let checkoutModel = new Schema(
     },
     delivery: {
       type: String,
-      enum: ['pending', 'shipped', 'delivered', 'returned'],
+      enum: [
+        'pending',
+        'shipped',
+        'delivered',
+        'cancelled',
+        'cancellation_requested',
+      ], // Add this
       default: 'pending',
     },
     estimatedDelivery: {

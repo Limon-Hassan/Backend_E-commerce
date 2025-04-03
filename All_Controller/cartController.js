@@ -32,7 +32,6 @@ async function getCart(req, res) {
   try {
     let { id } = req.params;
     let seecart = await cartModel.find({ user: id }).populate('product');
-    console.log(seecart);
     if (seecart && seecart.length > 0) {
       res.send(seecart);
     } else {

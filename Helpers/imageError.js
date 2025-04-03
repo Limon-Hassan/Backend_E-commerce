@@ -1,6 +1,7 @@
 function errorCheck(err, req, res, next) {
   if (err) {
-    return res.status(500).send({ msg: err.message });
+    console.log(err);
+    return res.status(err.statusCode || 500).send({ msg: err.message });
   } else {
     next();
   }
