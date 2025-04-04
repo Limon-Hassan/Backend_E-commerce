@@ -6,10 +6,11 @@ const {
   IncrementCart,
 } = require('../../All_Controller/cartController');
 const errorCheck = require('../../Helpers/imageError');
+const { auth } = require('../../Midlewere/authMidlewere');
 let router = express.Router();
 
-router.post('/addtocart', cartadd);
-router.get('/getCart/:id', getCart);
-router.delete('/DeleteCart/:id', DeleteCart);
-router.patch('/IncrementCart/:id', IncrementCart);
+router.post('/addtocart', auth, cartadd);
+router.get('/getCart/:id', auth, getCart);
+router.delete('/DeleteCart/:id', auth, DeleteCart);
+router.patch('/IncrementCart/:id', auth, IncrementCart);
 module.exports = router;

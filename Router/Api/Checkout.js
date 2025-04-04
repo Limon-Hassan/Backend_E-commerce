@@ -5,12 +5,13 @@ const {
   Deletecheckout,
   updateOrderStatus,
 } = require('../../All_Controller/Checkoutcontroller');
+const { auth, authAdmin } = require('../../Midlewere/authMidlewere');
 let router = express.Router();
 
-router.post('/checkOut', checkoutCart);
-router.get('/getCheckout', Getcheckout);
-router.get('/getCansellation', Getcheckout);
-router.patch('/UpdateCheckout/:id/', updateOrderStatus);
-router.delete('/DeleteCheckout', Deletecheckout);
+router.post('/checkOut', auth, checkoutCart);
+router.get('/getCheckout', authAdmin, Getcheckout);
+router.get('/getCansellation', auth, authAdmin, Getcheckout);
+router.patch('/UpdateCheckout/:id/', authAdmin, auth, updateOrderStatus);
+router.delete('/DeleteCheckout', authAdmin, Deletecheckout);
 
 module.exports = router;

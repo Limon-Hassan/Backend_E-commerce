@@ -75,8 +75,9 @@ async function loginController(req, res) {
     const isMatch = await bcrypt.compare(password, userWithPassword.password);
 
     if (!isMatch) {
-      const error = new Error('Password mismatch!');
-      error.statusCode = 401;
+      return res.status(401).send({ msg: 'Password not match' });
+    } else {
+      console.log('success');
     }
 
     let userWithoutPassword = await userSchema
@@ -84,12 +85,14 @@ async function loginController(req, res) {
       .select('-password');
 
     let token = jwt.sign({ userWithoutPassword }, process.env.Jwt_secret, {
-      expiresIn: userWithPassword.role === 'admin' ? '20m' : '24h',
+      expiresIn: userWithPassword.role === 'admin' ? '20m' : '5m',
     });
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // Set to true in production with HTTPS
+      secure: false,
+      sameSite: true,
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
     return res.send({

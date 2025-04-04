@@ -9,7 +9,7 @@ let router = express.Router();
 const multer = require('multer');
 const errorCheck = require('../../Helpers/imageError');
 const path = require('path');
-const { authAdmin } = require('../../Midlewere/authMidlewere');
+const { authAdmin, auth } = require('../../Midlewere/authMidlewere');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './productImage');
@@ -28,14 +28,14 @@ const upload = multer({
 
 router.post(
   '/addProducts',
-  // authAdmin,
+  authAdmin,
   upload.array('photo', 12),
   // errorCheck,
   productControll
 );
 
 router.delete('/deleteproducts/:id', authAdmin, deleteProducts);
-router.get('/getProducts', getAllProducts);
+router.get('/getProducts' , getAllProducts);
 router.patch(
   '/updateProducts/:id',
   authAdmin,
