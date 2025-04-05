@@ -57,7 +57,7 @@ const CategoryList = () => {
                       <tr key={category._id} className="border-b">
                         <td className="flex items-center gap-[20px] px-4 py-3">
                           <img
-                            src={category.Image || "/mans.png"} // Replace with real image URL
+                            src={category.Image || "/mans.png"} 
                             alt={category.name}
                             className="h-10 w-10 rounded-lg"
                           />
