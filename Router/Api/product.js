@@ -4,6 +4,8 @@ const {
   deleteProducts,
   getAllProducts,
   updateProducts,
+  getTopProducts,
+  addProductReview,
 } = require('../../All_Controller/productController');
 let router = express.Router();
 const multer = require('multer');
@@ -33,9 +35,10 @@ router.post(
   // errorCheck,
   productControll
 );
-
+router.post('/add-review', auth, addProductReview);
 router.delete('/deleteproducts/:id', authAdmin, deleteProducts);
 router.get('/getProducts' , getAllProducts);
+router.get('/TopProducts' , getTopProducts);
 router.patch(
   '/updateProducts/:id',
   authAdmin,

@@ -85,7 +85,7 @@ async function loginController(req, res) {
       .select('-password');
 
     let token = jwt.sign({ userWithoutPassword }, process.env.Jwt_secret, {
-      expiresIn: userWithPassword.role === 'admin' ? '20m' : '5m',
+      expiresIn: userWithPassword.role === 'admin' ? '20m' : '30m',
     });
 
     res.cookie('token', token, {

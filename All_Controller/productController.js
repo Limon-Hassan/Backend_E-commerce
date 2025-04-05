@@ -2,6 +2,7 @@ const categoryModel = require('../Model/categoryModel');
 const productSchema = require('../Model/productSchema');
 let path = require('path');
 let fs = require('fs');
+const reviewSchema = require('../Model/reviewSchema');
 
 async function productControll(req, res) {
   try {
@@ -86,18 +87,67 @@ async function deleteProducts(req, res) {
 
 async function getAllProducts(req, res) {
   try {
-    let getProduct = await productSchema.find().populate('category');
-    getProduct.forEach(product => {
-      console.log(`Product: ${product.name}`);
-      product.category.forEach(cat => {
-        console.log(`Category: ${cat.name}`);
+    let getProduct = await productSchema
+      .find()
+      .populate('category')
+      .populate({
+        path: 'review',
+        populate: {
+          path: 'user',
+          select: 'name', // Only get user name from review
+        },
       });
-    });
+
     res.send({ msg: 'Products fetched successfully', data: getProduct });
   } catch (error) {
     res
       .status(400)
       .send({ msg: 'Error fetching products', error: error.message });
+  }
+}
+
+async function getTopProducts(req, res) {
+  try {
+    const topProducts = await Product.find({ isTopProduct: true })
+      .sort({ sold: -1 }) // You can also sort by rating if you want
+      .limit(10);
+
+    res.status(200).json({
+      success: true,
+      data: topProducts,
+    });
+  } catch (error) {
+    console.error('Error fetching top products:', error.message);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
+async function addProductReview(req, res) {
+  try {
+    const { user, productId, comment, rating } = req.body;
+    // Create the review
+    const newReview = await reviewSchema.create({
+      product: productId,
+      user: user,
+      comment,
+      rating,
+    });
+
+    // Push review to the product
+    await productSchema.findByIdAndUpdate(productId, {
+      $push: { review: newReview._id },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Review added successfully!',
+      review: newReview,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 }
 
@@ -139,5 +189,7 @@ module.exports = {
   productControll,
   deleteProducts,
   getAllProducts,
+  addProductReview,
+  getTopProducts,
   updateProducts,
 };
