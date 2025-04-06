@@ -5,15 +5,32 @@ async function cartadd(req, res) {
   const { quantity, product, user } = req.body;
 
   try {
+    // Check if the product exists
     const productExists = await productSchema.findById({ _id: product });
     if (!productExists) {
       return res.status(404).json({ msg: 'Product not found' });
     }
-    const totalPrice = productExists.price * quantity;
+
+    // Check if the user already has this product in their cart
+    const existingCartItem = await cartModel.findOne({
+      user: user,
+      product: product,
+    });
+
+    if (existingCartItem) {
+      // If the product is already in the cart, return an error message
+      return res
+        .status(400)
+        .json({ msg: 'This product is already in your cart' });
+    }
+
+    // If the product doesn't exist in the cart, create a new cart item
+    const qty = quantity || 1;
+    const totalPrice = productExists.price * qty;
 
     let newCart = new cartModel({
-      totalPrice: totalPrice, 
-      quantity,
+      totalPrice,
+      quantity: qty,
       product,
       user,
     });
@@ -56,10 +73,19 @@ async function DeleteCart(req, res) {
 
 async function IncrementCart(req, res) {
   try {
-    let { id } = req.params;
-    let { action } = req.query;
+    const { id } = req.params;
+    const { action } = req.query;
+
+
+    console.log('Incoming request:');
+    console.log('ID from params:', req.params.cartId);
+    console.log('Action from query:', req.query.action);
+
 
     let cartItem = await cartModel.findOne({ _id: id }).populate('product');
+    if (!cartItem) {
+      return res.status(404).send({ msg: 'Cart item not found' });
+    }
 
     if (action === 'increment') {
       if (cartItem.quantity >= 10) {
@@ -79,10 +105,17 @@ async function IncrementCart(req, res) {
     }
 
     await cartItem.save();
-    res.send(cartItem);
+    res.status(200).json({
+      msg: `Cart ${
+        action === 'increment' ? 'incremented' : 'decremented'
+      } successfully`,
+      data: cartItem,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({ msg: 'An error occurred while updating the cart' });
+    console.error('IncrementCart ERROR:', error); // ✅ See actual error in console
+    res
+      .status(500)
+      .send({ msg: 'An error occurred while updating the cart', error });
   }
 }
 

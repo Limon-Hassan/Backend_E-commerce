@@ -101,6 +101,13 @@ async function loginController(req, res) {
           ? 'Admin login successful'
           : 'User login successful',
       token,
+      user: {
+        _id: userWithPassword._id, // or the appropriate field for user ID
+        name: userWithPassword.name,
+        email: userWithPassword.email,
+        role: userWithPassword.role,
+        // Include any other relevant user data here
+      },
     });
   } catch (error) {
     console.error(error);

@@ -5,6 +5,7 @@ let cartSchema = new Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      require: true,
     },
     totalPrice: {
       type: Number,
@@ -14,6 +15,7 @@ let cartSchema = new Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'products',
+        require: true,
       },
     ],
     quantity: {
