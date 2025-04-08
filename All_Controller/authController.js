@@ -102,11 +102,10 @@ async function loginController(req, res) {
           : 'User login successful',
       token,
       user: {
-        _id: userWithPassword._id, // or the appropriate field for user ID
+        _id: userWithPassword._id, 
         name: userWithPassword.name,
         email: userWithPassword.email,
         role: userWithPassword.role,
-        // Include any other relevant user data here
       },
     });
   } catch (error) {
@@ -150,9 +149,9 @@ async function reset_otp(req, res) {
       { $set: { otp: null } },
       { new: true }
     );
-  }, 60000); // Clear OTP after 50 seconds
+  }, 60000); 
 
-  verify(email, Otp); // Send OTP email
+  verify(email, Otp); 
   res.send('OTP reset successful');
 }
 

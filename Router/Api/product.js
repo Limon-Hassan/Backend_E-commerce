@@ -33,7 +33,6 @@ router.post(
   '/addProducts',
   authAdmin,
   upload.array('photo', 12),
-  // errorCheck,
   productControll
 );
 router.post('/add-review', addProductReview);

@@ -90,7 +90,6 @@ async function getProducts(req, res) {
     const { id } = req.query;
 
     if (id) {
-      // If there's an ID in query, return the single product
       const product = await productSchema
         .findById(id)
         .populate('category')
@@ -111,7 +110,6 @@ async function getProducts(req, res) {
         .json({ msg: 'Single product fetched', data: product });
     }
 
-    // Otherwise, return all products
     const products = await productSchema
       .find()
       .populate('category')
@@ -134,7 +132,7 @@ async function getProducts(req, res) {
 async function getTopProducts(req, res) {
   try {
     const topProducts = await Product.find({ isTopProduct: true })
-      .sort({ sold: -1 }) // You can also sort by rating if you want
+      .sort({ sold: -1 }) 
       .limit(10);
 
     res.status(200).json({
@@ -186,6 +184,7 @@ async function addProductReview(req, res) {
     });
   }
 }
+
 async function getReviews(req, res) {
   try {
     const { productId } = req.query;

@@ -5,32 +5,33 @@ async function cartadd(req, res) {
   const { quantity, product, user } = req.body;
 
   try {
-    // Check if the product exists
     const productExists = await productSchema.findById({ _id: product });
     if (!productExists) {
       return res.status(404).json({ msg: 'Product not found' });
     }
 
-    // Check if the user already has this product in their cart
     const existingCartItem = await cartModel.findOne({
       user: user,
       product: product,
     });
 
     if (existingCartItem) {
-      // If the product is already in the cart, return an error message
       return res
         .status(400)
         .json({ msg: 'This product is already in your cart' });
     }
 
-    // If the product doesn't exist in the cart, create a new cart item
     const qty = quantity || 1;
-    const totalPrice = productExists.price * qty;
+    const additionalFees = 100;
+
+    const OrginalPrice = productExists.price * qty;
+    const totalPrice = OrginalPrice + additionalFees;
 
     let newCart = new cartModel({
       totalPrice,
+      OrginalPrice,
       quantity: qty,
+      additionalFees,
       product,
       user,
     });
@@ -49,8 +50,30 @@ async function getCart(req, res) {
   try {
     let { id } = req.params;
     let seecart = await cartModel.find({ user: id }).populate('product');
+
     if (seecart && seecart.length > 0) {
-      res.send(seecart);
+      let originalPrice = 0;
+      let additionalFees = 0;
+
+      seecart.forEach(item => {
+        const productPrice = item.product[0]?.price || 0;
+        const quantity = item.quantity || 1;
+        const fees = item.additionalFees || 0;
+
+        originalPrice += productPrice * quantity;
+        additionalFees += fees;
+      });
+
+      const totalPrice = originalPrice + additionalFees;
+
+      res.send({
+        cartItems: seecart,
+        summary: {
+          originalPrice,
+          additionalFees,
+          totalPrice,
+        },
+      });
     } else {
       res.status(404).send({ msg: 'Cart not found for this user' });
     }
@@ -76,13 +99,9 @@ async function IncrementCart(req, res) {
     const { id } = req.params;
     const { action } = req.query;
 
-
-    // console.log('Incoming request:');
-    // console.log('ID from params:', req.params.cartId);
-    // console.log('Action from query:', req.query.action);
-
-
-    let cartItem = await cartModel.findOne({ _id: id }).populate('product');
+    let cartItem = await cartModel
+      .findOne({ _id: id })
+      .populate({ path: 'product', select: 'price' });
     if (!cartItem) {
       return res.status(404).send({ msg: 'Cart item not found' });
     }
@@ -102,6 +121,22 @@ async function IncrementCart(req, res) {
       return res
         .status(400)
         .send({ msg: 'Invalid action or quantity cannot go below 1' });
+    }
+
+    const productPrice = cartItem.product[0]?.price || 0;
+    const quantity = cartItem.quantity || 1;
+    const additionalFees = cartItem.additionalFees ?? 100;
+    const originalPrice = productPrice * cartItem.quantity;
+    const totalPrice = originalPrice + additionalFees;
+
+    if (!isNaN(originalPrice) && !isNaN(totalPrice)) {
+      cartItem.originalPrice = originalPrice;
+      cartItem.totalPrice = totalPrice;
+    } else {
+      return res.status(500).json({
+        msg: 'Invalid price calculation',
+        debug: { productPrice, quantity, additionalFees },
+      });
     }
 
     await cartItem.save();

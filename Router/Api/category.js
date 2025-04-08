@@ -30,7 +30,6 @@ router.post(
   '/createcategory',
   authAdmin,
   upload.array('image', 12),
-  // errorCheck,
   categoryControll
 );
 

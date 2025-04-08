@@ -22,7 +22,6 @@ async function checkoutCart(req, res) {
 
       totalQuantity += item.quantity;
 
-      // Get total price from all products in the array
       const productPrice = item.product.reduce(
         (acc, prod) => acc + (prod.price || 0),
         0
@@ -30,26 +29,21 @@ async function checkoutCart(req, res) {
       totalPrice += item.quantity * productPrice;
 
       return {
-        product: item.product.map(p => p._id), // Store all product IDs
+        product: item.product.map(p => p._id), 
         quantity: item.quantity,
-        price: productPrice, // Store the total product price
+        price: productPrice,
       };
     });
-    // Apply bulk discount (if applicable)
     if (totalQuantity > 10) {
-      totalPrice *= 0.95; // 5% discount for bulk orders
+      totalPrice *= 0.95; 
     }
 
-    // Optional: Add shipping cost if order total is below a threshold
     const shippingCost = totalPrice > 5000 ? 0 : 200;
     totalPrice += shippingCost;
-
-    // Ensure totalPrice is a valid number
     if (isNaN(totalPrice)) {
       throw new Error('Invalid total price calculation');
     }
 
-    // Create order
     const newOrder = new checkoutModel({
       user,
       cartItems: items,
@@ -81,26 +75,22 @@ async function updateOrderStatus(req, res) {
     const { orderId } = req.params;
     const { action } = req.body;
 
-    // Find the order and populate user details
     let order = await checkoutModel.findOne(orderId).populate('user');
     if (!order) {
       return res.status(404).json({ msg: 'Order not found' });
     }
 
-    // Extract user role from populated user data
-    const userRole = order.user.role; // Now we get the role
+    const userRole = order.user.role; 
 
-    // If the logged-in user is requesting cancellation
     if (userRole === 'user' && action === 'request') {
       order.delivery = 'cancellation_requested';
     }
 
-    // If an admin is approving or rejecting the request
     if (userRole === 'admin') {
       if (action === 'approve') {
         order.delivery = 'cancelled';
       } else if (action === 'reject') {
-        order.delivery = 'pending'; // Revert back if rejected
+        order.delivery = 'pending'; 
       } else {
         return res.status(400).json({ msg: 'Invalid admin action' });
       }

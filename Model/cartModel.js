@@ -7,6 +7,14 @@ let cartSchema = new Schema(
       ref: 'User',
       require: true,
     },
+    OrginalPrice: {
+      type: Number,
+      require: true,
+    },
+    additionalFees: {
+      type: Number,
+      require: true,
+    },
     totalPrice: {
       type: Number,
       require: true,

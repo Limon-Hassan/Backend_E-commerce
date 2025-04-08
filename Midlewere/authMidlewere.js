@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-// General authentication middleware for both users and admins
 function auth(req, res, next) {
-  let { token } = req.cookies; // Get token from cookies
+  let { token } = req.cookies; 
   if (token) {
     jwt.verify(token, process.env.Jwt_secret, function (err, decoded) {
       if (err) {
@@ -19,7 +18,6 @@ function auth(req, res, next) {
   }
 }
 
-// Admin-specific authentication middleware (only for admin routes)
 function authAdmin(req, res, next) {
   let { token } = req.cookies;
   if (token) {
@@ -27,9 +25,9 @@ function authAdmin(req, res, next) {
       if (err) {
         return res.status(401).send({ msg: 'Token is invalid or expired' });
       } else {
-        const { role } = decoded.userWithoutPassword; // Extract role from the decoded user data
+        const { role } = decoded.userWithoutPassword; 
         if (role === 'admin') {
-          next(); // Allow access to the admin route
+          next(); 
         } else {
           return res.status(403).send({ msg: 'Access Denied: Admins only.' });
         }

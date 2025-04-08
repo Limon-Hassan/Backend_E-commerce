@@ -19,8 +19,6 @@ async function verify(email, Otp) {
   } catch (error) {
     console.log(error);
   }
-
-  // console.log('Message sent: %s', info.messageId);
 }
 
 module.exports = verify;
