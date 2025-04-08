@@ -85,24 +85,49 @@ async function deleteProducts(req, res) {
   }
 }
 
-async function getAllProducts(req, res) {
+async function getProducts(req, res) {
   try {
-    let getProduct = await productSchema
+    const { id } = req.query;
+
+    if (id) {
+      // If there's an ID in query, return the single product
+      const product = await productSchema
+        .findById(id)
+        .populate('category')
+        .populate({
+          path: 'review',
+          populate: {
+            path: 'user',
+            select: 'name',
+          },
+        });
+
+      if (!product) {
+        return res.status(404).json({ msg: 'Product not found' });
+      }
+
+      return res
+        .status(200)
+        .json({ msg: 'Single product fetched', data: product });
+    }
+
+    // Otherwise, return all products
+    const products = await productSchema
       .find()
       .populate('category')
       .populate({
         path: 'review',
         populate: {
           path: 'user',
-          select: 'name', // Only get user name from review
+          select: 'name',
         },
       });
 
-    res.send({ msg: 'Products fetched successfully', data: getProduct });
+    res.status(200).json({ msg: 'All products fetched', data: products });
   } catch (error) {
     res
-      .status(400)
-      .send({ msg: 'Error fetching products', error: error.message });
+      .status(500)
+      .json({ msg: 'Error fetching product(s)', error: error.message });
   }
 }
 
@@ -125,7 +150,7 @@ async function getTopProducts(req, res) {
 async function addProductReview(req, res) {
   try {
     const { user, productId, comment, rating } = req.body;
-    // Create the review
+
     const newReview = await reviewSchema.create({
       product: productId,
       user: user,
@@ -133,15 +158,46 @@ async function addProductReview(req, res) {
       rating,
     });
 
-    // Push review to the product
     await productSchema.findByIdAndUpdate(productId, {
       $push: { review: newReview._id },
+    });
+
+    const allReviews = await reviewSchema
+      .find({ product: productId })
+      .populate('user', 'name');
+    console.log(allReviews);
+    const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+    const averageRating = (totalRating / allReviews.length).toFixed(1);
+
+    await productSchema.findByIdAndUpdate(productId, {
+      rating: averageRating,
+      totalReviews: allReviews.length,
     });
 
     res.status(201).json({
       success: true,
       message: 'Review added successfully!',
       review: newReview,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+async function getReviews(req, res) {
+  try {
+    const { productId } = req.query;
+
+    const reviews = await reviewSchema
+      .find({ product: productId })
+      .populate('user', 'name');
+
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      reviews,
     });
   } catch (error) {
     res.status(500).json({
@@ -188,7 +244,8 @@ async function updateProducts(req, res) {
 module.exports = {
   productControll,
   deleteProducts,
-  getAllProducts,
+  getProducts,
+  getReviews,
   addProductReview,
   getTopProducts,
   updateProducts,

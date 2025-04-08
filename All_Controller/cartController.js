@@ -77,9 +77,9 @@ async function IncrementCart(req, res) {
     const { action } = req.query;
 
 
-    console.log('Incoming request:');
-    console.log('ID from params:', req.params.cartId);
-    console.log('Action from query:', req.query.action);
+    // console.log('Incoming request:');
+    // console.log('ID from params:', req.params.cartId);
+    // console.log('Action from query:', req.query.action);
 
 
     let cartItem = await cartModel.findOne({ _id: id }).populate('product');

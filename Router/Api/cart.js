@@ -11,6 +11,6 @@ let router = express.Router();
 
 router.post('/addtocart', auth, cartadd);
 router.get('/getCart/:id', auth, getCart);
-router.delete('/DeleteCart/:id', auth, DeleteCart);
+router.delete('/DeleteCart/:id', DeleteCart);
 router.put('/IncrementCart/:id', errorCheck, IncrementCart);
 module.exports = router;
