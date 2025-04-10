@@ -25,13 +25,10 @@ let checkoutModel = new Schema(
         },
       },
     ],
-    totalQuantity: {
-      type: Number,
-      required: true,
-    },
-    totalPrice: {
-      type: Number,
-      required: true,
+    name: {
+      type: String,
+      require: true,
+      trim: true,
     },
     paymentMethod: {
       type: String,
@@ -67,7 +64,7 @@ let checkoutModel = new Schema(
         'delivered',
         'cancelled',
         'cancellation_requested',
-      ], // Add this
+      ],
       default: 'pending',
     },
     estimatedDelivery: {

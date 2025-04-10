@@ -8,7 +8,7 @@ const {
 const { auth, authAdmin } = require('../../Midlewere/authMidlewere');
 let router = express.Router();
 
-router.post('/checkOut', auth, checkoutCart);
+router.post('/checkOut/:id', checkoutCart);
 router.get('/getCheckout', authAdmin, Getcheckout);
 router.get('/getCansellation', auth, authAdmin, Getcheckout);
 router.patch('/UpdateCheckout/:id/', authAdmin, auth, updateOrderStatus);

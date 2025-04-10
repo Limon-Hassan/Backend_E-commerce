@@ -25,14 +25,20 @@ async function cartadd(req, res) {
     const additionalFees = 100;
 
     const OrginalPrice = productExists.price * qty;
-    const totalPrice = OrginalPrice + additionalFees;
+    const subTotal = OrginalPrice;
 
+    const shippingCost = subTotal >= 5000 ? 0 : 200;
+    const discount = qty > 10 ? subTotal * 0.05 : 0;
+    const totalPrice = subTotal + additionalFees + shippingCost - discount;
     let newCart = new cartModel({
       totalPrice,
       OrginalPrice,
+      subTotal,
       quantity: qty,
       additionalFees,
       product,
+      shippingCost,
+      discount,
       user,
     });
 
@@ -49,28 +55,51 @@ async function cartadd(req, res) {
 async function getCart(req, res) {
   try {
     let { id } = req.params;
-    let seecart = await cartModel.find({ user: id }).populate('product');
+    let seecart = await cartModel.find({ user: id }).populate('product'); // Populate product details
 
     if (seecart && seecart.length > 0) {
       let originalPrice = 0;
       let additionalFees = 0;
+      let totalQuantity = 0; // Track total quantity to check for discounts
 
       seecart.forEach(item => {
         const productPrice = item.product[0]?.price || 0;
         const quantity = item.quantity || 1;
         const fees = item.additionalFees || 0;
 
+        // Add product price * quantity to originalPrice
         originalPrice += productPrice * quantity;
         additionalFees += fees;
+        totalQuantity += quantity; // Sum up all the quantities
       });
 
-      const totalPrice = originalPrice + additionalFees;
+      // Calculate subTotal (originalPrice + additionalFees)
+      const subTotal = originalPrice + additionalFees;
 
+      // Apply shipping cost based on conditions (Free if subTotal > 5000)
+      let shippingCost = 200; // Default shipping cost
+      if (subTotal >= 5000) {
+        shippingCost = 0; // Free shipping if total price > 5000
+      }
+
+      // Apply discount if quantity > 10 (5% discount on subTotal)
+      let discount = 0;
+      if (totalQuantity > 10) {
+        discount = subTotal * 0.05; // 5% discount for total quantity > 10
+      }
+
+      // Calculate final total price
+      const totalPrice = subTotal + shippingCost - discount;
+
+      // Response with cart items and the summary
       res.send({
         cartItems: seecart,
         summary: {
           originalPrice,
           additionalFees,
+          subTotal,
+          shippingCost,
+          discount,
           totalPrice,
         },
       });
@@ -79,7 +108,7 @@ async function getCart(req, res) {
     }
   } catch (error) {
     console.log(error);
-    res.status(400).send({ msg: 'Error found' });
+    res.status(400).send({ msg: 'Error found', error });
   }
 }
 
@@ -101,11 +130,13 @@ async function IncrementCart(req, res) {
 
     let cartItem = await cartModel
       .findOne({ _id: id })
-      .populate({ path: 'product', select: 'price' });
+      .populate({ path: 'product', select: 'price stock' });
+
     if (!cartItem) {
       return res.status(404).send({ msg: 'Cart item not found' });
     }
 
+    // Action: Increment quantity
     if (action === 'increment') {
       if (cartItem.quantity >= 10) {
         return res.status(400).send({ msg: 'Max quantity of 10 reached' });
@@ -115,7 +146,9 @@ async function IncrementCart(req, res) {
       } else {
         cartItem.quantity++;
       }
-    } else if (action === 'decrement' && cartItem.quantity > 1) {
+    }
+    // Action: Decrement quantity
+    else if (action === 'decrement' && cartItem.quantity > 1) {
       cartItem.quantity--;
     } else {
       return res
@@ -123,12 +156,22 @@ async function IncrementCart(req, res) {
         .send({ msg: 'Invalid action or quantity cannot go below 1' });
     }
 
-    const productPrice = cartItem.product[0]?.price || 0;
+    const productPrice = cartItem.product?.price || 0;
     const quantity = cartItem.quantity || 1;
-    const additionalFees = cartItem.additionalFees ?? 100;
-    const originalPrice = productPrice * cartItem.quantity;
-    const totalPrice = originalPrice + additionalFees;
+    const additionalFees = cartItem.additionalFees || 100; // You can adjust this fee as per your business logic
+    const originalPrice = productPrice * quantity;
 
+    // Assuming shipping cost and discount are stored as part of the cart model.
+    const shippingCost = cartItem.shippingCost || 0;
+    const discount = cartItem.discount || 0;
+
+    // Calculate subtotal before shipping and discount
+    const subTotal = originalPrice + additionalFees;
+
+    // Final total price including shipping cost and discount
+    const totalPrice = subTotal + shippingCost - discount;
+
+    // Ensure all calculations are valid
     if (!isNaN(originalPrice) && !isNaN(totalPrice)) {
       cartItem.originalPrice = originalPrice;
       cartItem.totalPrice = totalPrice;

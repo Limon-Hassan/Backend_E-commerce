@@ -14,6 +14,23 @@ let cartSchema = new Schema(
     additionalFees: {
       type: Number,
       require: true,
+      default: 0,
+    },
+    subTotal: {
+      type: Number,
+      required: true,
+    },
+    shippingCost: {
+      type: Number,
+      default: 0,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
     },
     totalPrice: {
       type: Number,
