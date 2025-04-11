@@ -1,3 +1,4 @@
+import { Spinner } from "@material-tailwind/react";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
 
 const Login = ({
@@ -7,6 +8,7 @@ const Login = ({
   error,
   showPassword,
   setShowPassword,
+  loading,
 }) => {
   return (
     <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-8">
@@ -63,9 +65,15 @@ const Login = ({
 
       <button
         type="submit"
-        className="rounded-full bg-gray-400 px-[110px] py-[16px] text-white transition duration-300 ease-in-out hover:bg-black hover:text-white"
+        disabled={loading}
+        className="flex items-center justify-center rounded-full bg-gray-400 px-[110px] py-[16px] text-white transition duration-300 ease-in-out hover:bg-black hover:text-white"
       >
-        Log in
+        {loading && (
+          <span className="text-red-500">
+            <Spinner className="mr-3 h-8 w-8 text-white" />
+          </span>
+        )}
+        {loading ? "Logging in..." : "Log in"}
       </button>
     </form>
   );

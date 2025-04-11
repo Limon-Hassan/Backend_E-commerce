@@ -11,13 +11,15 @@ import ProductList from "./Components/ProductList";
 import AddCategory from "./Components/AddCategory";
 import CategoryList from "./Components/CategoryList";
 import Account from "./Components/Account";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Orderlist from "./Components/Orderlist";
+import OtpSent from "./Pages/otpsent";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Layout with common Navbar + Sidebar */}
         <Route path="/" element={<Rootleayout />}>
           <Route index element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -29,12 +31,13 @@ const App = () => {
           <Route path="/orderlist" element={<Orderlist />} />
         </Route>
 
-        {/* Auth Pages (outside main layout) */}
+        <Route path="/otp" element={<OtpSent />} />
         <Route path="/signup-signin" element={<Signp_signin />}>
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registation />} />
         </Route>
       </Routes>
+      <ToastContainer />
     </BrowserRouter>
   );
 };

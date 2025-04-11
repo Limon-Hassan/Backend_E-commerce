@@ -7,23 +7,13 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 const AddCategory = () => {
   const [CategoryName, setCategoryName] = useState("");
-  // const [GetallCategory, setGetallCategory] = useState([]);
   const [description, setDescription] = useState("");
   const [Image, setImageupload] = useState("");
-
-  // useEffect(() => {
-  //   axios
-  //     .get("http://localhost:5990/api/v1/category/getAllCategories")
-  //     .then((respone) => {
-  //       console.log(respone.data.data);
-  //       setGetallCategory(respone.data.data);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, []);
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
@@ -53,10 +43,28 @@ const AddCategory = () => {
           },
         )
         .then((respone) => {
-          console.log(respone.data);
+          setCategoryName("");
+          setDescription("");
+          setImageupload("");
+          toast.success("Category added SuccessFully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            draggable: true,
+            progress: undefined,
+          });
         })
-        .catch((err) => {
-          console.log(err);
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            toast.error(error.response.data.msg || "Something went wrong", {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: true,
+              closeOnClick: true,
+              draggable: true,
+            });
+          }
         });
     }
   };
@@ -136,6 +144,7 @@ const AddCategory = () => {
               Schedule
             </Button>
           </div>
+          <ToastContainer />
         </form>
       </Card>
     </>

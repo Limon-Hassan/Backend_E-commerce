@@ -9,25 +9,24 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddProduct = () => {
   const [productName, setProductName] = useState("");
   const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState([]); // Store categories from backend
+  const [categoriesFromBackend, setcategoriesFromBackend] = useState([]);
   const [brand, setBrand] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  // Fetch categories from backend
   useEffect(() => {
     axios
       .get("http://localhost:5990/api/v1/category/getAllCategories")
       .then((response) => {
-        // console.log("Fetched Categories:", response.data.data); // Debugging
-        setCategories(response.data.data); // Make sure you're accessing `data`
+        setcategoriesFromBackend(response.data.data);
       })
       .catch((error) => {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching categoriesFromBackend:", error);
       });
   }, []);
 
@@ -53,12 +52,31 @@ const AddProduct = () => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log("Product Added:", response.data);
-        alert("Product added successfully!");
+        setProductName("");
+        setCategory("");
+        setBrand("");
+        setDescription("");
+        setPrice("");
+        setImage("");
+        toast.success("Product added SuccessFully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          draggable: true,
+          progress: undefined,
+        });
       })
       .catch((error) => {
-        console.error("There was an error adding the product:", error);
-        alert("Error adding product!");
+        if (error.response && error.response.data) {
+          toast.error(error.response.data.msg || "Something went wrong", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            draggable: true,
+          });
+        }
       });
   };
 
@@ -91,13 +109,13 @@ const AddProduct = () => {
             <Select
               value={category}
               onChange={(value) => {
-                console.log("Selected Category:", value); 
+                console.log("Selected Category:", value);
                 setCategory(value);
               }}
               required
             >
-              {categories.length > 0 ? (
-                categories.map((cat) => (
+              {categoriesFromBackend.length > 0 ? (
+                categoriesFromBackend.map((cat) => (
                   <Option key={cat._id} value={cat._id}>
                     {cat.name}
                   </Option>
@@ -194,6 +212,7 @@ const AddProduct = () => {
             Schedule
           </Button>
         </div>
+        <ToastContainer />
       </form>
     </Card>
   );
