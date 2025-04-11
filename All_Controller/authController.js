@@ -6,6 +6,7 @@ let jwt = require('jsonwebtoken');
 
 async function regisationController(req, res) {
   let { name, email, password, role } = req.body;
+  console.log(req.body);
   if (!name || !email || !password) {
     return res.status(400).send({ msg: 'Please fill all fields' });
   }
@@ -54,7 +55,8 @@ async function regisationController(req, res) {
       });
     });
   } catch (error) {
-    res.status(500).send({ msg: 'Error in registration', error });
+    console.log(error.message);
+    return res.status(500).send('Error hashing password');
   }
 }
 
@@ -76,8 +78,6 @@ async function loginController(req, res) {
 
     if (!isMatch) {
       return res.status(401).send({ msg: 'Password not match' });
-    } else {
-      console.log('success');
     }
 
     let userWithoutPassword = await userSchema
@@ -85,7 +85,7 @@ async function loginController(req, res) {
       .select('-password');
 
     let token = jwt.sign({ userWithoutPassword }, process.env.Jwt_secret, {
-      expiresIn: userWithPassword.role === 'admin' ? '20m' : '30m',
+      expiresIn: userWithPassword.role === 'admin' ? '30m' : '30m',
     });
 
     res.cookie('token', token, {
@@ -102,7 +102,7 @@ async function loginController(req, res) {
           : 'User login successful',
       token,
       user: {
-        _id: userWithPassword._id, 
+        _id: userWithPassword._id,
         name: userWithPassword.name,
         email: userWithPassword.email,
         role: userWithPassword.role,
@@ -149,9 +149,9 @@ async function reset_otp(req, res) {
       { $set: { otp: null } },
       { new: true }
     );
-  }, 60000); 
+  }, 60000);
 
-  verify(email, Otp); 
+  verify(email, Otp);
   res.send('OTP reset successful');
 }
 

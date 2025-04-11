@@ -11,8 +11,8 @@ const errorCheck = require('../../Helpers/imageError');
 
 let router = express.Router();
 
-router.post('/regisation', errorCheck, regisationController);
-router.post('/login', errorCheck, loginController);
+router.post('/regisation', regisationController);
+router.post('/login', loginController);
 router.post('/otp-verify', otp_verify);
 router.post('/otp-reset', reset_otp);
 
