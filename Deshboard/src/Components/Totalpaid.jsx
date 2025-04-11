@@ -13,7 +13,6 @@ import {
 } from "chart.js";
 import { useState } from "react";
 
-// Register required chart components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -37,7 +36,7 @@ const Totalpaid = () => {
         backgroundColor: "rgba(173, 223, 255, 0.2)",
         fill: {
           target: "origin",
-          above: "rgba(173, 223, 255, 0.3)", // Light blue fill below line
+          above: "rgba(173, 223, 255, 0.3)", 
         },
         tension: 0.4,
       },

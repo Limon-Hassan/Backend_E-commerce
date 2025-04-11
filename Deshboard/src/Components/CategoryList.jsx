@@ -19,7 +19,6 @@ const CategoryList = () => {
     };
 
     fetchCategories();
-    // console.log(GetallCategories);
   }, []);
 
   return (

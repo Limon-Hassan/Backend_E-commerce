@@ -13,7 +13,6 @@ import {
 import { useState } from "react";
 import { Line } from "react-chartjs-2";
 
-// Register required chart components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -38,7 +37,7 @@ const Totalvisitors = () => {
         backgroundColor: "rgba(30, 144, 255, 0.2)",
         fill: {
           target: "origin",
-          above: "rgba(30, 144, 255, 0.3)", // Blue fill below line
+          above: "rgba(30, 144, 255, 0.3)", 
         },
         tension: 0.4,
       },

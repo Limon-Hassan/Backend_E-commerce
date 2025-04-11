@@ -37,7 +37,6 @@ const Orderlist = () => {
           <div className="rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-xl font-bold">Order List</h2>
 
-            {/* Order Statistics */}
             <div className="mb-4 flex justify-between rounded-lg bg-gray-100 p-4">
               <p>
                 Total Orders:{" "}
@@ -57,7 +56,6 @@ const Orderlist = () => {
               </p>
             </div>
 
-            {/* Search Input and Button */}
             <div className="mb-4 flex gap-2">
               <input
                 type="text"

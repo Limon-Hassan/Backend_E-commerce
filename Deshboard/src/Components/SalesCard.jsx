@@ -13,7 +13,6 @@ import {
 } from "chart.js";
 import { useState } from "react";
 
-// Register required chart components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -38,7 +37,7 @@ const salesCard = () => {
         backgroundColor: "rgba(34, 197, 94, 0.2)",
         fill: {
           target: "origin",
-          above: "rgba(34, 197, 94, 0.3)", // Green fill below line
+          above: "rgba(34, 197, 94, 0.3)", 
         },
         tension: 0.4,
       },
