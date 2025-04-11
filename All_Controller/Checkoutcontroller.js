@@ -2,27 +2,65 @@ const cartModel = require('../Model/cartModel');
 const checkoutModel = require('../Model/checkoutModel');
 const userSchema = require('../Model/userSchema');
 
+
 async function checkoutCart(req, res) {
   try {
     const { name, address, Apartment, city, phone, email, paymentMethod } =
       req.body;
     const userid = req.params.id;
 
-    const cartItems = await cartModel.find({ user: userid });
+    // Fetch the cart items
+    const cartItems = await cartModel
+      .find({ user: userid })
+      .populate('product');
+
 
     if (cartItems.length === 0) {
       return res.status(400).json({ msg: 'Cart is empty' });
     }
 
+    let originalPrice = 0;
+    let additionalFees = 0;
+    let totalQuantity = 0;
+
+    cartItems.forEach(item => {
+      const productPrice = item.product?.price || 0;
+      const quantity = item.quantity || 1;
+      const fees = item.additionalFees || 0;
+
+      originalPrice += productPrice * quantity;
+      additionalFees += fees;
+      totalQuantity += quantity;
+    });
+
+    const subTotal = originalPrice + additionalFees;
+
+    let shippingCost = 200; // Default shipping cost
+    if (subTotal >= 5000) {
+      shippingCost = 0; // Free shipping for totals above 5000
+    }
+
+    let discount = 0;
+    if (totalQuantity > 10) {
+      discount = subTotal * 0.05; // 5% discount for more than 10 items
+    }
+
+    const totalPrice = subTotal + shippingCost - discount;
+
     const items = cartItems.map(item => ({
       product: item.product,
       quantity: item.quantity,
-      price: item.totalPrice,
+      price: item.product.price,
     }));
 
+    // Create a new order
     const newOrder = new checkoutModel({
       user: userid,
       cartItems: items,
+      totalQuantity,
+      totalPrice,
+      discount,
+      shippingCost,
       address,
       city,
       name,
@@ -35,7 +73,8 @@ async function checkoutCart(req, res) {
     });
 
     await newOrder.save();
-    // await cartModel.deleteMany({ user: userid });
+
+    await cartModel.deleteMany({ user: userid });
 
     res.status(201).json({
       msg: 'Order placed successfully',
@@ -85,7 +124,7 @@ async function updateOrderStatus(req, res) {
 
 async function Getcheckout(req, res) {
   try {
-    const orderId = req.params.orderId; 
+    const orderId = req.query.orderId;
 
     const order = await checkoutModel
       .findById(orderId)
@@ -95,24 +134,27 @@ async function Getcheckout(req, res) {
       return res.status(404).json({ msg: 'Order not found' });
     }
 
-    // Extract order summary details
-    const { totalQuantity, totalPrice, discount, shippingCost, cartItems } =
-      order;
-
     res.json({
       orderSummary: {
-        totalQuantity,
-        totalPrice,
-        discount,
-        shippingCost,
-        cartItems, // Full cart items data with products
+        totalQuantity: order.totalQuantity,
+        subTotal: order.totalPrice - order.shippingCost + order.discount,
+        discount: order.discount,
+        shippingCost: order.shippingCost,
+        totalPrice: order.totalPrice,
+        cartItems: order.cartItems.map(item => ({
+          product: item.product,
+          quantity: item.quantity,
+          price: item.price,
+          subTotal: item.price, // if price includes quantity
+        })),
       },
     });
   } catch (error) {
     console.log('Error fetching order summary:', error);
-    res
-      .status(500)
-      .json({ msg: 'Error fetching order summary', error: error.message });
+    res.status(500).json({
+      msg: 'Error fetching order summary',
+      error: error.message,
+    });
   }
 }
 

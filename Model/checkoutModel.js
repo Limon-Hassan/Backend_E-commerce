@@ -7,6 +7,22 @@ let checkoutModel = new Schema(
       ref: 'User',
       required: true,
     },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    shippingCost: {
+      type: Number,
+      default: 0,
+    },
+    totalPrice: {
+      type: Number,
+      default: 0,
+    },
+    totalQuantity: {
+      type: Number,
+      default: 0,
+    },
     cartItems: [
       {
         product: {

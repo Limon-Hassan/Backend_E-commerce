@@ -52,63 +52,96 @@ async function cartadd(req, res) {
   }
 }
 
-async function getCart(req, res) {
+async function getcartInfo(req, res) {
   try {
-    let { id } = req.params;
-    let seecart = await cartModel.find({ user: id }).populate('product'); // Populate product details
+    const userId = req.params.id;
 
-    if (seecart && seecart.length > 0) {
-      let originalPrice = 0;
-      let additionalFees = 0;
-      let totalQuantity = 0; // Track total quantity to check for discounts
+    const cartItems = await cartModel
+      .find({ user: userId })
+      .populate('product', 'name price Photo'); // Populate only necessary product details
 
-      seecart.forEach(item => {
-        const productPrice = item.product[0]?.price || 0;
-        const quantity = item.quantity || 1;
-        const fees = item.additionalFees || 0;
-
-        // Add product price * quantity to originalPrice
-        originalPrice += productPrice * quantity;
-        additionalFees += fees;
-        totalQuantity += quantity; // Sum up all the quantities
-      });
-
-      // Calculate subTotal (originalPrice + additionalFees)
-      const subTotal = originalPrice + additionalFees;
-
-      // Apply shipping cost based on conditions (Free if subTotal > 5000)
-      let shippingCost = 200; // Default shipping cost
-      if (subTotal >= 5000) {
-        shippingCost = 0; // Free shipping if total price > 5000
-      }
-
-      // Apply discount if quantity > 10 (5% discount on subTotal)
-      let discount = 0;
-      if (totalQuantity > 10) {
-        discount = subTotal * 0.05; // 5% discount for total quantity > 10
-      }
-
-      // Calculate final total price
-      const totalPrice = subTotal + shippingCost - discount;
-
-      // Response with cart items and the summary
-      res.send({
-        cartItems: seecart,
-        summary: {
-          originalPrice,
-          additionalFees,
-          subTotal,
-          shippingCost,
-          discount,
-          totalPrice,
-        },
-      });
-    } else {
-      res.status(404).send({ msg: 'Cart not found for this user' });
+    if (cartItems.length === 0) {
+      return res.status(400).json({ msg: 'Cart is empty' });
     }
+
+    // Respond with the product information, quantity, and price
+    const productsInCart = cartItems.map(item => ({
+      cartItemId: item._id,
+      product: item.product,
+      quantity: item.quantity,
+      price: item.product.price, // Just the product price for the item
+    }));
+
+    res.status(200).json({
+      msg: 'Cart products fetched successfully',
+      cartItems: productsInCart,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(400).send({ msg: 'Error found', error });
+    console.log('Error fetching cart products:', error);
+    res.status(500).json({
+      msg: 'Error fetching cart products',
+      error: error.message,
+    });
+  }
+}
+
+async function getCartSummery(req, res) {
+  try {
+    const userId = req.params.id;
+
+    const cartItems = await cartModel
+      .find({ user: userId })
+      .populate('product');
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({ msg: 'Cart is empty' });
+    }
+
+    let originalPrice = 0;
+    let totalQuantity = 0;
+    const additionalFees = 100;
+
+    cartItems.forEach(item => {
+      const productPrice = item.product?.price || 0;
+      const quantity = item.quantity || 1;
+
+      originalPrice += productPrice * quantity;
+      totalQuantity += quantity;
+    });
+
+    let shippingCost = 200;
+    if (originalPrice >= 5000) {
+      shippingCost = 0;
+    }
+
+    const subTotal = originalPrice + shippingCost + additionalFees;
+
+    let discount = 0;
+    if (totalQuantity > 10) {
+      discount = subTotal * 0.05;
+    }
+
+    const totalPrice = subTotal - discount;
+
+    const summary = {
+      originalPrice, // Total product price (price * quantity)
+      additionalFees, // Fixed additional fees (100)
+      subTotal, // Subtotal including shipping and additional fees
+      shippingCost, // Shipping cost
+      discount, // Discount (if applicable)
+      totalPrice, // Final price after discount
+      totalQuantity,
+    };
+
+    res.status(200).json({
+      msg: 'Cart summary fetched successfully',
+      summary,
+    });
+  } catch (error) {
+    console.log('Error fetching cart summary:', error);
+    res
+      .status(500)
+      .json({ msg: 'Error fetching cart summary', error: error.message });
   }
 }
 
@@ -197,4 +230,10 @@ async function IncrementCart(req, res) {
   }
 }
 
-module.exports = { cartadd, getCart, DeleteCart, IncrementCart };
+module.exports = {
+  cartadd,
+  getCartSummery,
+  getcartInfo,
+  DeleteCart,
+  IncrementCart,
+};
