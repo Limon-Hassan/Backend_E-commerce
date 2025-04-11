@@ -26,7 +26,6 @@ router.get('/user', auth, (req, res) => {
   }
 });
 
-// Admin route - Protected by admin-specific auth middleware
 router.get('/admin', authAdmin, async (req, res) => {
   let users = await userSchema.find({});
   res.send(users);

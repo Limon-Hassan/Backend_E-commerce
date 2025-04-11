@@ -58,18 +58,17 @@ async function getcartInfo(req, res) {
 
     const cartItems = await cartModel
       .find({ user: userId })
-      .populate('product', 'name price Photo'); // Populate only necessary product details
+      .populate('product', 'name price Photo'); 
 
     if (cartItems.length === 0) {
       return res.status(400).json({ msg: 'Cart is empty' });
     }
 
-    // Respond with the product information, quantity, and price
     const productsInCart = cartItems.map(item => ({
       cartItemId: item._id,
       product: item.product,
       quantity: item.quantity,
-      price: item.product.price, // Just the product price for the item
+      price: item.product.price, 
     }));
 
     res.status(200).json({
@@ -124,12 +123,12 @@ async function getCartSummery(req, res) {
     const totalPrice = subTotal - discount;
 
     const summary = {
-      originalPrice, // Total product price (price * quantity)
-      additionalFees, // Fixed additional fees (100)
-      subTotal, // Subtotal including shipping and additional fees
-      shippingCost, // Shipping cost
-      discount, // Discount (if applicable)
-      totalPrice, // Final price after discount
+      originalPrice, 
+      additionalFees, 
+      subTotal, 
+      shippingCost, 
+      discount,
+      totalPrice, 
       totalQuantity,
     };
 
@@ -169,7 +168,6 @@ async function IncrementCart(req, res) {
       return res.status(404).send({ msg: 'Cart item not found' });
     }
 
-    // Action: Increment quantity
     if (action === 'increment') {
       if (cartItem.quantity >= 10) {
         return res.status(400).send({ msg: 'Max quantity of 10 reached' });
@@ -180,7 +178,6 @@ async function IncrementCart(req, res) {
         cartItem.quantity++;
       }
     }
-    // Action: Decrement quantity
     else if (action === 'decrement' && cartItem.quantity > 1) {
       cartItem.quantity--;
     } else {
@@ -191,20 +188,17 @@ async function IncrementCart(req, res) {
 
     const productPrice = cartItem.product?.price || 0;
     const quantity = cartItem.quantity || 1;
-    const additionalFees = cartItem.additionalFees || 100; // You can adjust this fee as per your business logic
+    const additionalFees = cartItem.additionalFees || 100; 
     const originalPrice = productPrice * quantity;
 
-    // Assuming shipping cost and discount are stored as part of the cart model.
     const shippingCost = cartItem.shippingCost || 0;
     const discount = cartItem.discount || 0;
 
-    // Calculate subtotal before shipping and discount
+    
     const subTotal = originalPrice + additionalFees;
 
-    // Final total price including shipping cost and discount
     const totalPrice = subTotal + shippingCost - discount;
 
-    // Ensure all calculations are valid
     if (!isNaN(originalPrice) && !isNaN(totalPrice)) {
       cartItem.originalPrice = originalPrice;
       cartItem.totalPrice = totalPrice;
@@ -223,7 +217,7 @@ async function IncrementCart(req, res) {
       data: cartItem,
     });
   } catch (error) {
-    console.error('IncrementCart ERROR:', error); // ✅ See actual error in console
+    console.error('IncrementCart ERROR:', error); 
     res
       .status(500)
       .send({ msg: 'An error occurred while updating the cart', error });

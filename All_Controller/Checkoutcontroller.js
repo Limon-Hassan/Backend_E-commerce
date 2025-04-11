@@ -9,7 +9,6 @@ async function checkoutCart(req, res) {
       req.body;
     const userid = req.params.id;
 
-    // Fetch the cart items
     const cartItems = await cartModel
       .find({ user: userid })
       .populate('product');
@@ -35,14 +34,14 @@ async function checkoutCart(req, res) {
 
     const subTotal = originalPrice + additionalFees;
 
-    let shippingCost = 200; // Default shipping cost
+    let shippingCost = 200; 
     if (subTotal >= 5000) {
-      shippingCost = 0; // Free shipping for totals above 5000
+      shippingCost = 0; 
     }
 
     let discount = 0;
     if (totalQuantity > 10) {
-      discount = subTotal * 0.05; // 5% discount for more than 10 items
+      discount = subTotal * 0.05; 
     }
 
     const totalPrice = subTotal + shippingCost - discount;
@@ -53,7 +52,6 @@ async function checkoutCart(req, res) {
       price: item.product.price,
     }));
 
-    // Create a new order
     const newOrder = new checkoutModel({
       user: userid,
       cartItems: items,
@@ -145,7 +143,7 @@ async function Getcheckout(req, res) {
           product: item.product,
           quantity: item.quantity,
           price: item.price,
-          subTotal: item.price, // if price includes quantity
+          subTotal: item.price, 
         })),
       },
     });
