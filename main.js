@@ -22,9 +22,9 @@ mongoose.connect(process.env.DB_url).then(() => {
   console.log('Database Connected');
 });
 
+app.get('/', (req, res) => {
+  res.send('server is run');
+});
 app.listen(process.env.SARVER_PORT || 4500, () => {
-  app.get('/', (req, res) => {
-    res.send('server is run');
-  });
   console.log('Server is running');
 });
