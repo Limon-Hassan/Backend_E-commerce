@@ -8,8 +8,8 @@ async function productControll(req, res) {
   try {
     const { name, description, price, category, stock, brand } = req.body;
     const filename = req.files;
-    res.send(filename);
     const fileNames = files.map(file => file.filename);
+    res.send(fileNames);
 
     const product = new productSchema({
       name,
@@ -22,12 +22,12 @@ async function productControll(req, res) {
     });
 
     await product.save();
-    const baseUrl = process.env.local_host || 'http://localhost:5990';
+    // const baseUrl = process.env.local_host || 'http://localhost:5990';
 
-    const responseProduct = {
-      ...product._doc,
-      Photo: fileNames.map(filename => `${baseUrl}/${filename}`),
-    };
+    // const responseProduct = {
+    //   ...product._doc,
+    //   Photo: fileNames.map(filename => `${baseUrl}/${filename}`),
+    // };
 
     return res.status(201).send({
       msg: 'Product created successfully',
