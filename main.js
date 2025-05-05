@@ -5,7 +5,7 @@ let app = express();
 const cors = require('cors');
 app.use(
   cors({
-    origin: 'https://backend-e-commerce-theta.vercel.app/',
+    origin: 'http://localhost:5173',
     credentials: true,
   })
 );
