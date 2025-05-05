@@ -7,11 +7,9 @@ const reviewSchema = require('../Model/reviewSchema');
 async function productControll(req, res) {
   try {
     const { name, description, price, category, stock, brand } = req.body;
-    const fileName = req.files;
-
-    const fileNames = fileName.map(
-      element => `${process.env.local_host}${element.filename}`
-    );
+    const filename = req.files;
+    res.send(filename);
+    const fileNames = files.map(file => file.filename);
 
     const product = new productSchema({
       name,
@@ -24,6 +22,12 @@ async function productControll(req, res) {
     });
 
     await product.save();
+    const baseUrl = process.env.local_host || 'http://localhost:5990';
+
+    const responseProduct = {
+      ...product._doc,
+      Photo: fileNames.map(filename => `${baseUrl}/${filename}`),
+    };
 
     return res.status(201).send({
       msg: 'Product created successfully',
@@ -132,7 +136,7 @@ async function getProducts(req, res) {
 async function getTopProducts(req, res) {
   try {
     const topProducts = await Product.find({ isTopProduct: true })
-      .sort({ sold: -1 }) 
+      .sort({ sold: -1 })
       .limit(10);
 
     res.status(200).json({
