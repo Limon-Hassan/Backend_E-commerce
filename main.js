@@ -33,3 +33,5 @@ app.get('/', (req, res) => {
 // app.listen(process.env.SARVER_PORT || 4500, () => {
 //   console.log('Server is running');
 // });
+
+module.exports = app;
