@@ -25,6 +25,6 @@ mongoose.connect(process.env.DB_url).then(() => {
 app.get('/', (req, res) => {
   res.send('server is run');
 });
-app.listen(process.env.local_host || 4500, () => {
+app.listen(process.env.SARVER_PORT || 4500, () => {
   console.log('Server is running');
 });
