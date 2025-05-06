@@ -5,7 +5,7 @@ let app = express();
 const cors = require('cors');
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://your-frontend-domain.vercel.app',
+  'https://e-commer-front-end-orpin.vercel.app',
 ];
 
 app.use(
@@ -33,4 +33,3 @@ app.get('/', (req, res) => {
 app.listen(process.env.SARVER_PORT || 4500, () => {
   console.log('Server is running');
 });
-
