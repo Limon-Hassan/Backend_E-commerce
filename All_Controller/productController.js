@@ -8,9 +8,8 @@ async function productControll(req, res) {
   try {
     const { name, description, price, category, stock, brand } = req.body;
     const filename = req.files;
-    const fileNames = files.map(file => file.filename);
-    res.send(fileNames);
-
+    const fileNames = filename.map(file => file.filename);
+        res.send("fdddsfs")
     const product = new productSchema({
       name,
       description,
