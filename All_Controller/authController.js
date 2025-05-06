@@ -89,9 +89,9 @@ async function loginController(req, res) {
     });
 
     res.cookie('token', token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: true,
+      httpsOnly: true, 
+      secure: false, 
+      sameSite: true, 
       maxAge: 1000 * 60 * 60 * 24,
     });
 
