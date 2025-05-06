@@ -9,7 +9,6 @@ async function productControll(req, res) {
     const { name, description, price, category, stock, brand } = req.body;
     const filename = req.files;
     const fileNames = filename.map(file => file.filename);
-        res.send("fdddsfs")
     const product = new productSchema({
       name,
       description,
