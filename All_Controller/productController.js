@@ -7,7 +7,7 @@ const reviewSchema = require('../Model/reviewSchema');
 async function productControll(req, res) {
   try {
     const { name, description, price, category, stock, brand } = req.body;
-    const filename = req.files || [];
+    const filename = req.files;
     const fileNames = Array.isArray(filename)
       ? filename.map(file => file.filename)
       : [];
