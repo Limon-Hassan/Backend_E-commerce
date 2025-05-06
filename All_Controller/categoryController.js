@@ -8,7 +8,7 @@ async function categoryControll(req, res) {
     let fileName = req.files;
     let fileNames = [];
     fileName.forEach(element => {
-      fileNames.push(process.env.local_host + element.filename);
+      fileNames.push(process.env.local_host + '/' + element.filename);
     });
     if (!name || !description) {
       return res.status(400).send({ msg: 'Name and description are required' });
@@ -36,9 +36,9 @@ async function deleteCategory(req, res) {
     } else {
       let deleteCat = await categoryModel.findOneAndDelete({ _id: id });
       if (!deleteCat) {
-         return res
-           .status(404)
-           .send({ msg: 'Failed to delete category from database' });
+        return res
+          .status(404)
+          .send({ msg: 'Failed to delete category from database' });
       }
       const deletePromises = category.Image.map(imagePath => {
         return new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ async function deleteCategory(req, res) {
 
           fs.unlink(imagePathOnServer, err => {
             if (err) {
-              return reject('Failed to delete image'); 
+              return reject('Failed to delete image');
             } else {
               resolve();
             }
