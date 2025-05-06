@@ -3,9 +3,14 @@ require('dotenv').config();
 let cookieParser = require('cookie-parser');
 let app = express();
 const cors = require('cors');
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-frontend-domain.vercel.app',
+];
+
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true,
   })
 );
